@@ -10,4 +10,5 @@ module cz.krokviak.donkeykong {
     exports cz.krokviak.donkeykong.drawable;
     exports cz.krokviak.donkeykong.objects;
     opens cz.krokviak.donkeykong.main to javafx.fxml;
+    exports cz.krokviak.donkeykong.items;
 }

@@ -6,7 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
 public class Barrels implements Drawable {
-    private final static float SCALE = 1.5f;
+    private final static float SCALE = 1f;
     private final Image image;
     private Point2D position;
     public Barrels(){
@@ -20,7 +20,6 @@ public class Barrels implements Drawable {
 
     @Override
     public void drawInternal(GraphicsContext gc) {
-        gc.scale(SCALE, SCALE);
-        gc.drawImage(image, position.getX(), position.getY());
+        gc.drawImage(image, position.getX(), position.getY(), image.getWidth() * SCALE, image.getHeight() * SCALE);
     }
 }

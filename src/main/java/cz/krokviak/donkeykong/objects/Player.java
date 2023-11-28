@@ -6,6 +6,7 @@ import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.input.GameAction;
 import cz.krokviak.donkeykong.input.InputHandler;
+import cz.krokviak.donkeykong.items.HammerItem;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -24,6 +25,8 @@ public class Player implements Drawable, AABB {
     private Point2D velocity;
     private boolean rightFacing = true;
     private boolean isGrounded = true;
+    private boolean isAlive = true;
+    private HammerItem hammer;
     public Player(final InputHandler inputHandler){
         position = Point2D.ZERO;
         velocity = Point2D.ZERO;
@@ -43,12 +46,35 @@ public class Player implements Drawable, AABB {
                 .scale(SCALE)
                 .build();
         animation.setCurrentAnimation("walk");
+        hammer = new HammerItem();
+
     }
     public void update(float dt){
+        if (!isAlive){
+            animation.update(dt);
+            inputHandler.setActive(GameAction.MOVE_LEFT, false);
+            inputHandler.setActive(GameAction.MOVE_RIGHT, false);
+            inputHandler.setActive(GameAction.MOVE_UP, false);
+            inputHandler.setActive(GameAction.MOVE_DOWN, false);
+            updateVelocity(dt);
+            nextPosition(dt);
+            fixBounds();
+            return;
+        }
+        if (hammer.isActive()){
+            if (!animation.getCurrentAnimation().equals("attack")){
+                animation.setCurrentAnimation("attack");
+            }
+        } else {
+            if (animation.getCurrentAnimation().equals("attack")){
+                animation.setCurrentAnimation("walk");
+            }
+        }
         position = position.add(velocity.multiply(dt));
         updateVelocity(dt);
         nextPosition(dt);
         animation.update(dt);
+        hammer.update(dt);
         fixBounds();
     }
 
@@ -83,15 +109,20 @@ public class Player implements Drawable, AABB {
     public void fixBounds(){
         if (position.getX() < -WIDTH / 2){
             position = new Point2D(-WIDTH / 2, position.getY());
+            velocity = new Point2D(0, velocity.getY());
         }
-        if (position.getX() > DonkeyKongApplication.WIDTH - WIDTH / 2){
-            position = new Point2D(DonkeyKongApplication.WIDTH - WIDTH / 2, position.getY());
+        if (position.getX() > DonkeyKongApplication.WIDTH - 3/2f * WIDTH){
+            position = new Point2D(DonkeyKongApplication.WIDTH - 3/2f * WIDTH, position.getY());
+            velocity = new Point2D(0, velocity.getY());
         }
+
         if (position.getY() < -HEIGHT / 2){
             position = new Point2D(position.getX(), -HEIGHT / 2);
+            velocity = new Point2D(velocity.getX(), 0);
         }
-        if (position.getY() > DonkeyKongApplication.HEIGHT - HEIGHT / 2){
-            position = new Point2D(position.getX(), DonkeyKongApplication.HEIGHT - HEIGHT / 2);
+        if (position.getY() > DonkeyKongApplication.HEIGHT - 3/2f * HEIGHT){
+            position = new Point2D(position.getX(), DonkeyKongApplication.HEIGHT - 3/2f * HEIGHT);
+            velocity = new Point2D(velocity.getX(), 0);
         }
     }
     public void setVelocity(final float x, final float y){
@@ -144,9 +175,17 @@ public class Player implements Drawable, AABB {
                 }
             }
         }
+        else if (other instanceof Hammer){
+            hammer.activate();
+        }
     }
 
     public void setPosition(int x, int y) {
         position = new Point2D(x, y);
+    }
+
+    public void kill() {
+        isAlive = false;
+        animation.setCurrentAnimation("dead");
     }
 }

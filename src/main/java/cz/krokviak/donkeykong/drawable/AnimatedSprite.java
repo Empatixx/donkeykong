@@ -76,4 +76,8 @@ public class AnimatedSprite implements Drawable{
     public boolean hasFinishedAnimation() {
         return currentAnimation != null && currentAnimation.hasPlayedOnce();
     }
+
+    public String getCurrentAnimation() {
+        return currentAnimationName;
+    }
 }

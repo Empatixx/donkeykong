@@ -1,6 +1,7 @@
 package cz.krokviak.donkeykong.collision;
 
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
+import cz.krokviak.donkeykong.objects.Barrel;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;
@@ -31,8 +32,12 @@ public class CollisionService {
     }
     public void draw(GraphicsContext c){
         for (AABB aabb : aabbs) {
-            //c.setStroke(javafx.scene.paint.Color.RED);
-            //c.strokeRect(aabb.getBoundingBox().getMinX(), aabb.getBoundingBox().getMinY(), aabb.getBoundingBox().getWidth(), aabb.getBoundingBox().getHeight());
+            c.setStroke(javafx.scene.paint.Color.RED);
+            c.strokeRect(aabb.getBoundingBox().getMinX(), aabb.getBoundingBox().getMinY(), aabb.getBoundingBox().getWidth(), aabb.getBoundingBox().getHeight());
         }
+    }
+
+    public void removeAABB(AABB aabb) {
+        aabbs.remove(aabb);
     }
 }

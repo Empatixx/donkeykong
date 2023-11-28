@@ -12,12 +12,14 @@ public class ScheduledTask {
         this.elapsedTime = 0;
     }
 
-    public void update(float dt) {
+    public boolean update(float dt) {
         elapsedTime += dt;
         if (elapsedTime >= interval) {
             task.run();
             elapsedTime -= interval;
+            return true;
         }
+        return false;
     }
 
     public void reset() {
