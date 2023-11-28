@@ -10,9 +10,9 @@ import javafx.scene.image.Image;
 import java.security.interfaces.DSAPrivateKey;
 
 public class Platform implements Drawable, AABB {
-    public static final int WIDTH = 16;
-    public static final int HEIGHT = 8;
     public static final int SCALE = 3;
+    public static final int WIDTH = 16 * SCALE;
+    public static final int HEIGHT = 8 * SCALE;
     private final Image image;
     private Point2D position;
     public Platform(){
@@ -30,8 +30,7 @@ public class Platform implements Drawable, AABB {
 
     @Override
     public void drawInternal(GraphicsContext gc) {
-        gc.scale(SCALE, SCALE);
-        gc.drawImage(image, position.getX(), position.getY());
+        gc.drawImage(image, position.getX(), position.getY(), WIDTH, HEIGHT);
     }
 
     public Point2D getPosition() {
@@ -40,7 +39,7 @@ public class Platform implements Drawable, AABB {
 
     @Override
     public Rectangle2D getBoundingBox() {
-        return new Rectangle2D(position.getX(), position.getY(), position.getX() + WIDTH * SCALE,  position.getY()+HEIGHT * SCALE);
+        return new Rectangle2D(position.getX(), position.getY(), WIDTH, HEIGHT);
     }
 
     @Override

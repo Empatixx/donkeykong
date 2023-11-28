@@ -64,14 +64,12 @@ public class AnimatedSprite implements Drawable{
             final Point2D position = positionSupplier.get();
             final boolean isFlipped = isFlippedSupplier.get();
             final Image image = currentAnimation.getImageView().getImage();
-            gc.scale(scale, scale);
             if (isFlipped) {
-                gc.translate(position.getX() + image.getWidth() / 2, 0);
-                gc.scale(-1, 1);
-                gc.translate(-position.getX() - image.getWidth() / 2, 0);
+                final Point2D translatedPosition = new Point2D(position.getX() + image.getWidth() * scale, position.getY());
+                gc.drawImage(image, translatedPosition.getX(), translatedPosition.getY(), -image.getWidth() * scale, image.getHeight() * scale);
+            } else {
+                gc.drawImage(image, position.getX(), position.getY(), image.getWidth() * scale, image.getHeight() * scale);
             }
-
-            gc.drawImage(image, position.getX(), position.getY());
         }
     }
 

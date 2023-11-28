@@ -1,5 +1,7 @@
 package cz.krokviak.donkeykong.collision;
 
+import javafx.scene.canvas.GraphicsContext;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +26,12 @@ public class CollisionService {
                     b.onCollision(a);
                 }
             }
+        }
+    }
+    public void draw(GraphicsContext c){
+        for (AABB aabb : aabbs) {
+            c.setStroke(javafx.scene.paint.Color.RED);
+            c.strokeRect(aabb.getBoundingBox().getMinX(), aabb.getBoundingBox().getMinY(), aabb.getBoundingBox().getWidth(), aabb.getBoundingBox().getHeight());
         }
     }
 }

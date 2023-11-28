@@ -17,11 +17,13 @@ public class Player implements Drawable, AABB {
     private final static int WIDTH = 64;
     private final static int HEIGHT = 64;
     private final static int SPEED = 50;
+    private final static int GRAVITY = 5;
     private final InputHandler inputHandler;
     private final AnimatedSprite animation;
     private Point2D position;
     private Point2D velocity;
     private boolean rightFacing = true;
+    private boolean isGrounded = true;
     public Player(final InputHandler inputHandler){
         position = Point2D.ZERO;
         velocity = Point2D.ZERO;
@@ -44,7 +46,7 @@ public class Player implements Drawable, AABB {
     }
     public void update(float dt){
         position = position.add(velocity.multiply(dt));
-        updateVelocity();
+        updateVelocity(dt);
         nextPosition(dt);
         animation.update(dt);
     }
@@ -53,13 +55,13 @@ public class Player implements Drawable, AABB {
         position = position.add(new Point2D(velocity.getX(), velocity.getY()).multiply(dt));
     }
 
-    private void updateVelocity(){
+    private void updateVelocity(final  float dt){
         final boolean right = inputHandler.isActive(GameAction.MOVE_RIGHT);
         final boolean left = inputHandler.isActive(GameAction.MOVE_LEFT);
         final boolean up = inputHandler.isActive(GameAction.MOVE_UP);
         final boolean down = inputHandler.isActive(GameAction.MOVE_DOWN);
 
-        Point2D newVelocity = Point2D.ZERO;
+        Point2D newVelocity = velocity = new Point2D(0, velocity.getY());
         if(right){
             newVelocity = newVelocity.add(SPEED, 0);
             rightFacing = true;
@@ -68,12 +70,13 @@ public class Player implements Drawable, AABB {
             newVelocity = newVelocity.add(-SPEED, 0);
             rightFacing = false;
         }
-        if(up){
+        if (up && isGrounded){
             newVelocity = newVelocity.add(0, -SPEED);
+            isGrounded = false;
         }
-        if(down){
-            newVelocity = newVelocity.add(0, SPEED);
-        }
+        // gravity
+        newVelocity = newVelocity.add(0, GRAVITY * dt);
+
         velocity = newVelocity;
     }
     public void setVelocity(final float x, final float y){
@@ -86,7 +89,7 @@ public class Player implements Drawable, AABB {
 
     @Override
     public Rectangle2D getBoundingBox() {
-        return new Rectangle2D(position.getX(), position.getY(), position.getX() + WIDTH * SCALE, position.getY()+ HEIGHT * SCALE);
+        return new Rectangle2D(position.getX() + WIDTH / 2 + 10, position.getY() + HEIGHT / 2 + 20, WIDTH - 20, HEIGHT - 20);
     }
 
     @Override
@@ -95,18 +98,16 @@ public class Player implements Drawable, AABB {
             final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
             if (intersection.getWidth() > intersection.getHeight()){
                 if (intersection.getMaxY() == getBoundingBox().getMaxY()){
-                    position = position.add(0, -intersection.getHeight());
+                    position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
                 } else {
-                    position = position.add(0, intersection.getHeight());
+                    position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
                 }
-                velocity = new Point2D(velocity.getX(), 0);
             } else {
                 if (intersection.getMaxX() == getBoundingBox().getMaxX()){
-                    position = position.add(-intersection.getWidth(), 0);
+                    position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
                 } else {
-                    position = position.add(intersection.getWidth(), 0);
+                    position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
                 }
-                velocity = new Point2D(0, velocity.getY());
             }
         }
     }

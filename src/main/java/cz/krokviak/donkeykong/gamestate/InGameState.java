@@ -28,9 +28,9 @@ public class InGameState extends GameStateSupport implements GameState{
         super(gsm, pane);
         player = new Player(inputHandler);
         monkey = new Monkey();
-        monkey.setPosition(10, 0);
+        monkey.setPosition(30, 0);
         princess = new Princess();
-        princess.setPosition(65, -2);
+        princess.setPosition(180, -5);
         background = new Background();
         map = new Map();
         collisionService = new CollisionService();
@@ -60,6 +60,8 @@ public class InGameState extends GameStateSupport implements GameState{
         monkey.draw(gc);
         map.draw(gc);
         princess.draw(gc);
+
+        collisionService.draw(gc);
     }
 
     @Override
