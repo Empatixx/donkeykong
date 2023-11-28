@@ -6,18 +6,18 @@ import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.input.GameAction;
 import cz.krokviak.donkeykong.input.InputHandler;
+import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
-
-import java.nio.file.Path;
 
 public class Player implements Drawable, AABB {
     private final static int SCALE = 2;
     private final static int WIDTH = 64;
     private final static int HEIGHT = 64;
     private final static int SPEED = 50;
-    private final static int GRAVITY = 5;
+    private final static int JUMP_SPEED = 100;
+    private final static int GRAVITY = 75;
     private final InputHandler inputHandler;
     private final AnimatedSprite animation;
     private Point2D position;
@@ -49,6 +49,7 @@ public class Player implements Drawable, AABB {
         updateVelocity(dt);
         nextPosition(dt);
         animation.update(dt);
+        fixBounds();
     }
 
     private void nextPosition(final float dt) {
@@ -71,13 +72,27 @@ public class Player implements Drawable, AABB {
             rightFacing = false;
         }
         if (up && isGrounded){
-            newVelocity = newVelocity.add(0, -SPEED);
+            newVelocity = newVelocity.add(0, -JUMP_SPEED);
             isGrounded = false;
         }
         // gravity
         newVelocity = newVelocity.add(0, GRAVITY * dt);
 
         velocity = newVelocity;
+    }
+    public void fixBounds(){
+        if (position.getX() < -WIDTH / 2){
+            position = new Point2D(-WIDTH / 2, position.getY());
+        }
+        if (position.getX() > DonkeyKongApplication.WIDTH - WIDTH / 2){
+            position = new Point2D(DonkeyKongApplication.WIDTH - WIDTH / 2, position.getY());
+        }
+        if (position.getY() < -HEIGHT / 2){
+            position = new Point2D(position.getX(), -HEIGHT / 2);
+        }
+        if (position.getY() > DonkeyKongApplication.HEIGHT - HEIGHT / 2){
+            position = new Point2D(position.getX(), DonkeyKongApplication.HEIGHT - HEIGHT / 2);
+        }
     }
     public void setVelocity(final float x, final float y){
         this.velocity = new Point2D(x, y);
@@ -92,21 +107,40 @@ public class Player implements Drawable, AABB {
         return new Rectangle2D(position.getX() + WIDTH / 2 + 10, position.getY() + HEIGHT / 2 + 20, WIDTH - 20, HEIGHT - 20);
     }
 
+    private final static int STAIR_HEIGHT_THRESHOLD = 3; // Maximum height the player can step up automatically
     @Override
     public void onCollision(AABB other) {
+        final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
         if (other instanceof Platform){
-            final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
-            if (intersection.getWidth() > intersection.getHeight()){
-                if (intersection.getMaxY() == getBoundingBox().getMaxY()){
+            if (intersection.getWidth() > intersection.getHeight()) {
+                // Collision from top or bottom of the player
+                if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
+                    // Player lands on the platform
                     position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
-                } else {
+                    isGrounded = true; // Player is on the ground
+                    if (velocity.getY() > 0) {
+                        velocity = new Point2D(velocity.getX(), 0);
+                    }
+                } else if (intersection.getMinY() == getBoundingBox().getMinY()) {
+                    // Player hits the ceiling
                     position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
+                    velocity = new Point2D(velocity.getX(), 0);
                 }
             } else {
-                if (intersection.getMaxX() == getBoundingBox().getMaxX()){
-                    position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
-                } else {
-                    position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                if (intersection.getMaxX() == getBoundingBox().getMaxX() || intersection.getMinX() == getBoundingBox().getMinX()) {
+                    // Check if the player can step up a stair
+                    double deltaY = other.getBoundingBox().getMinY() - getBoundingBox().getMaxY();
+                    if (Math.abs(deltaY) <= STAIR_HEIGHT_THRESHOLD && isGrounded) {
+                        // Adjust position to step up the stair
+                        position = new Point2D(position.getX(), position.getY() + deltaY);
+                    } else {
+                        // Standard side collision response
+                        if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
+                            position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                        } else {
+                            position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                        }
+                    }
                 }
             }
         }

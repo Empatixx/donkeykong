@@ -33,7 +33,7 @@ public class Map {
         riseY += Platform.HEIGHT * 3;
 
         // second floor
-        for (int i = 1; i < 18; i++) {
+        for (int i = 2; i < 18; i++) {
             platforms.add(new Platform(DonkeyKongApplication.WIDTH - Platform.WIDTH - i * Platform.WIDTH, DonkeyKongApplication.HEIGHT - Platform.HEIGHT - riseY));
             riseY += 3;
         }
@@ -41,7 +41,7 @@ public class Map {
         riseY += Platform.HEIGHT * 3;
 
         // third floor
-        for (int i = 1; i < 19; i++) {
+        for (int i = 2; i < 19; i++) {
             platforms.add(new Platform(i * Platform.WIDTH, DonkeyKongApplication.HEIGHT  - Platform.HEIGHT - riseY));
             riseY += 3;
         }
@@ -49,7 +49,7 @@ public class Map {
         riseY += Platform.HEIGHT * 3;
 
         // fourth floor
-        for (int i = 1; i < 19; i++) {
+        for (int i = 2; i < 19; i++) {
             platforms.add(new Platform(DonkeyKongApplication.WIDTH  - Platform.WIDTH - i * Platform.WIDTH, DonkeyKongApplication.HEIGHT  - Platform.HEIGHT - riseY));
             riseY += 3;
         }
@@ -57,7 +57,7 @@ public class Map {
         riseY += Platform.HEIGHT * 3;
 
         // fifth floor
-        for (int i = 1; i < 19; i++) {
+        for (int i = 2; i < 19; i++) {
             platforms.add(new Platform(i * Platform.WIDTH, DonkeyKongApplication.HEIGHT - Platform.HEIGHT - riseY));
             riseY += 3;
         }
@@ -66,7 +66,7 @@ public class Map {
 
 
         // sixth floor same as first but from right rising to left
-        for (int i = 1; i < 10; i++) {
+        for (int i = 2; i < 10; i++) {
             platforms.add(new Platform(DonkeyKongApplication.WIDTH  - Platform.WIDTH - i * Platform.WIDTH, DonkeyKongApplication.HEIGHT - Platform.HEIGHT - riseY));
             riseY += 3;
         }

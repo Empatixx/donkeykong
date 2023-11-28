@@ -17,7 +17,6 @@ public class DonkeyKongApplication extends Application {
     public void start(final Stage primaryStage) {
         Pane root = new Pane();
         root.setFocusTraversable(true);
-        // add canvas
         Scene scene = new Scene(root, WIDTH, HEIGHT);
 
         final KeyboardHandler keyboardHandler = new KeyboardHandler();
