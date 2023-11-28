@@ -72,8 +72,12 @@ public class Barrel implements Drawable, AABB {
 
     @Override
     public void onCollision(AABB other) {
-        if (other instanceof Player) {
-            ((Player) other).kill();
+        if (other instanceof Player player) {
+            if (player.hasHammer()){
+                totalBounces = 0;
+                return;
+            }
+            player.kill();
         }
         else if (other instanceof Platform){
             final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());

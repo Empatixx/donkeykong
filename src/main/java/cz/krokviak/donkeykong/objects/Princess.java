@@ -9,6 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 public class Princess implements Drawable {
     private final AnimatedSprite animatedSprite;
     private final ScheduledTask helpTask;
+    private final PrincessHelp princessHelp;
     private Point2D position;
 
     public Princess(){
@@ -22,7 +23,10 @@ public class Princess implements Drawable {
                 .scale(3)
                 .build();
         animatedSprite.setCurrentAnimation("idle");
+
+        princessHelp = new PrincessHelp();
         helpTask = new ScheduledTask(() -> {
+            princessHelp.reset();
             animatedSprite.setCurrentAnimation("idle"); // reseting animation
             animatedSprite.setFrameTimeCurrentAnimation(0.1f);
         }, 5);
@@ -30,16 +34,19 @@ public class Princess implements Drawable {
     public void update(float dt){
         animatedSprite.update(dt);
         helpTask.update(dt);
+        princessHelp.update(dt);
         if (animatedSprite.hasFinishedAnimation()){
             animatedSprite.setFrameTimeCurrentAnimation(Float.MAX_VALUE);
         }
     }
     @Override
     public void drawInternal(GraphicsContext gc) {
+        princessHelp.draw(gc);
         animatedSprite.draw(gc);
     }
 
     public void setPosition(final float x, final float y) {
         this.position = new Point2D(x, y);
+        this.princessHelp.setPosition(x+PrincessHelp.WIDTH, y+10);
     }
 }

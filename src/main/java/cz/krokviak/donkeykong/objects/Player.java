@@ -188,4 +188,8 @@ public class Player implements Drawable, AABB {
         isAlive = false;
         animation.setCurrentAnimation("dead");
     }
+
+    public boolean hasHammer() {
+        return hammer.isActive();
+    }
 }
