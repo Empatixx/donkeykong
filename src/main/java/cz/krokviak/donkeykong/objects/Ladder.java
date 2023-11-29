@@ -58,6 +58,7 @@ public class Ladder implements Drawable, AABB {
     }
 
     public Point2D getUpPosition() {
-        return new Point2D(position.getX(), position.getY());
+        return new Point2D(position.getX(),
+                position.getY() - Player.HEIGHT*Player.SCALE);
     }
 }

@@ -33,7 +33,7 @@ public class LevelOneGenerator implements LevelGenerator {
         final List<Ladder> ladders = createLadders();
 
         final Player player = new Player(inputHandler);
-        player.setPosition(20, 700);
+        player.setPosition(50, 550);
 
         final Monkey monkey = new Monkey(collisionService);
         monkey.setPosition(30, 15);
@@ -66,7 +66,7 @@ public class LevelOneGenerator implements LevelGenerator {
     }
 
     private List<Ladder> createLadders() {
-        final List<Ladder> ladders = new ArrayList<>();
+       final List<Ladder> ladders = new ArrayList<>();
         final Ladder ladder1 = new Ladder(90);
         ladder1.setPosition(630, 185);
         ladders.add(ladder1);

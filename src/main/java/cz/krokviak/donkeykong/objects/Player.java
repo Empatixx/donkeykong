@@ -14,9 +14,11 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
 public class Player implements Drawable, AABB, Updatable {
-    private final static int SCALE = 2;
-    private final static int WIDTH = 64;
-    private final static int HEIGHT = 64;
+    public final static int SCALE = 2;
+    public final static int WIDTH = 64;
+    public final static int HEIGHT = 64;
+    public final static int COLLISION_WIDTH = 32;
+    public final static int COLLISION_HEIGHT = 32;
     private final static int SPEED = 50;
     private final static int JUMP_SPEED = 100;
     private final static int GRAVITY = 75;
@@ -86,6 +88,7 @@ public class Player implements Drawable, AABB, Updatable {
         animation.update(dt);
         hammer.update(dt);
         fixBounds();
+        System.out.println("Player position: " + position);
     }
 
     private void handleClimbing() {
@@ -124,21 +127,21 @@ public class Player implements Drawable, AABB, Updatable {
         velocity = newVelocity;
     }
     public void fixBounds(){
-        if (position.getX() < -WIDTH / 2){
-            position = new Point2D(-WIDTH / 2, position.getY());
+        if (position.getX() < 0){
+            position = new Point2D(0, position.getY());
             velocity = new Point2D(0, velocity.getY());
         }
-        if (position.getX() > DonkeyKongApplication.WIDTH - 3/2f * WIDTH){
-            position = new Point2D(DonkeyKongApplication.WIDTH - 3/2f * WIDTH, position.getY());
+        if (position.getX() + WIDTH * SCALE > DonkeyKongApplication.WIDTH){
+            position = new Point2D(DonkeyKongApplication.WIDTH, position.getY());
             velocity = new Point2D(0, velocity.getY());
         }
 
-        if (position.getY() < -HEIGHT / 2){
-            position = new Point2D(position.getX(), -HEIGHT / 2);
+        if (position.getY() < 0){
+            position = new Point2D(position.getX(), 0);
             velocity = new Point2D(velocity.getX(), 0);
         }
-        if (position.getY() > DonkeyKongApplication.HEIGHT - 3/2f * HEIGHT){
-            position = new Point2D(position.getX(), DonkeyKongApplication.HEIGHT - 3/2f * HEIGHT);
+        if (position.getY() + HEIGHT * SCALE > DonkeyKongApplication.HEIGHT){
+            position = new Point2D(position.getX(), DonkeyKongApplication.HEIGHT);
             velocity = new Point2D(velocity.getX(), 0);
         }
     }
@@ -153,7 +156,7 @@ public class Player implements Drawable, AABB, Updatable {
 
     @Override
     public Rectangle2D getBoundingBox() {
-        return new Rectangle2D(position.getX() + WIDTH / 2 + 10, position.getY() + HEIGHT / 2 + 20, WIDTH - 20, HEIGHT - 20);
+        return new Rectangle2D(position.getX() + WIDTH, position.getY() + HEIGHT, COLLISION_WIDTH, COLLISION_HEIGHT);
     }
 
     private final static int STAIR_HEIGHT_THRESHOLD = 3; // Maximum height the player can step up automatically
