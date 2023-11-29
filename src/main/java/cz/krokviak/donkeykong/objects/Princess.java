@@ -2,11 +2,12 @@ package cz.krokviak.donkeykong.objects;
 
 import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
+import cz.krokviak.donkeykong.drawable.Updatable;
 import cz.krokviak.donkeykong.utils.ScheduledTask;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public class Princess implements Drawable {
+public class Princess implements Drawable, Updatable {
     private final AnimatedSprite animatedSprite;
     private final ScheduledTask helpTask;
     private final PrincessHelp princessHelp;
@@ -31,6 +32,8 @@ public class Princess implements Drawable {
             animatedSprite.setFrameTimeCurrentAnimation(0.1f);
         }, 5);
     }
+
+    @Override
     public void update(float dt){
         animatedSprite.update(dt);
         helpTask.update(dt);
@@ -47,6 +50,6 @@ public class Princess implements Drawable {
 
     public void setPosition(final float x, final float y) {
         this.position = new Point2D(x, y);
-        this.princessHelp.setPosition(x+PrincessHelp.WIDTH, y+10);
+        this.princessHelp.setPosition(x+PrincessHelp.WIDTH*PrincessHelp.SCALE, y+10);
     }
 }

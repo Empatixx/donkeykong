@@ -8,6 +8,7 @@ import javafx.scene.canvas.GraphicsContext;
 public class PrincessHelp implements Drawable {
     public static final int WIDTH = 25;
     public static final int HEIGHT = 10;
+    public static final int SCALE = 3;
     private final AnimatedSprite animatedSprite;
     private Point2D position;
     public PrincessHelp(){
@@ -19,7 +20,7 @@ public class PrincessHelp implements Drawable {
                 .setFrameWidth(WIDTH)
                 .setFrameTime(0.1f)
                 .positionSupplier(() -> position)
-                .scale(3)
+                .scale(SCALE)
                 .build();
         animatedSprite.setCurrentAnimation("idle");
     }

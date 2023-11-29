@@ -4,29 +4,34 @@ import cz.krokviak.donkeykong.collision.AABB;
 import cz.krokviak.donkeykong.collision.RectangleUtils;
 import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
+import cz.krokviak.donkeykong.drawable.Updatable;
 import cz.krokviak.donkeykong.input.GameAction;
 import cz.krokviak.donkeykong.input.InputHandler;
-import cz.krokviak.donkeykong.items.HammerItem;
+import cz.krokviak.donkeykong.items.Hammer;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public class Player implements Drawable, AABB {
+public class Player implements Drawable, AABB, Updatable {
     private final static int SCALE = 2;
     private final static int WIDTH = 64;
     private final static int HEIGHT = 64;
     private final static int SPEED = 50;
     private final static int JUMP_SPEED = 100;
     private final static int GRAVITY = 75;
+    private final static int RESPAWN_TIME = 2;
     private final InputHandler inputHandler;
     private final AnimatedSprite animation;
+    private final PlayerLives playerLives;
     private Point2D position;
     private Point2D velocity;
     private boolean rightFacing = true;
     private boolean isGrounded = true;
     private boolean isAlive = true;
+    private float timeSinceDeath;
     private HammerItem hammer;
+    private LadderDetector ladderDetector;
     public Player(final InputHandler inputHandler){
         position = Point2D.ZERO;
         velocity = Point2D.ZERO;
@@ -47,8 +52,11 @@ public class Player implements Drawable, AABB {
                 .build();
         animation.setCurrentAnimation("walk");
         hammer = new HammerItem();
-
+        playerLives = new PlayerLives();
+        ladderDetector = new LadderDetector(this);
+        timeSinceDeath = 0;
     }
+    @Override
     public void update(float dt){
         if (!isAlive){
             animation.update(dt);
@@ -70,12 +78,22 @@ public class Player implements Drawable, AABB {
                 animation.setCurrentAnimation("walk");
             }
         }
+        ladderDetector.update(dt);
         position = position.add(velocity.multiply(dt));
         updateVelocity(dt);
         nextPosition(dt);
+        handleClimbing();
         animation.update(dt);
         hammer.update(dt);
         fixBounds();
+    }
+
+    private void handleClimbing() {
+        final boolean down = inputHandler.isActive(GameAction.MOVE_DOWN);
+        if (ladderDetector.getLadder() != null && down){
+            animation.setCurrentAnimation("climb");
+            position = ladderDetector.getLadder().getUpPosition();
+        }
     }
 
     private void nextPosition(final float dt) {
@@ -86,7 +104,6 @@ public class Player implements Drawable, AABB {
         final boolean right = inputHandler.isActive(GameAction.MOVE_RIGHT);
         final boolean left = inputHandler.isActive(GameAction.MOVE_LEFT);
         final boolean up = inputHandler.isActive(GameAction.MOVE_UP);
-        final boolean down = inputHandler.isActive(GameAction.MOVE_DOWN);
 
         Point2D newVelocity = velocity = new Point2D(0, velocity.getY());
         if(right){
@@ -131,6 +148,7 @@ public class Player implements Drawable, AABB {
     @Override
     public void drawInternal(final GraphicsContext gc){
         animation.draw(gc);
+        playerLives.draw(gc);
     }
 
     @Override
@@ -177,6 +195,8 @@ public class Player implements Drawable, AABB {
         }
         else if (other instanceof Hammer){
             hammer.activate();
+        } else if (other instanceof Ladder ladder){
+            ladderDetector.setLadder(ladder);
         }
     }
 

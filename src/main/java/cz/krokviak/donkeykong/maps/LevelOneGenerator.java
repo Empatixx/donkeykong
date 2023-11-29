@@ -1,18 +1,117 @@
 package cz.krokviak.donkeykong.maps;
 
+import cz.krokviak.donkeykong.collision.AABB;
+import cz.krokviak.donkeykong.collision.CollisionService;
+import cz.krokviak.donkeykong.drawable.Background;
 import cz.krokviak.donkeykong.drawable.Drawable;
+import cz.krokviak.donkeykong.input.InputHandler;
+import cz.krokviak.donkeykong.items.Hammer;
 import cz.krokviak.donkeykong.items.Item;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
-import cz.krokviak.donkeykong.objects.Barrels;
-import cz.krokviak.donkeykong.objects.Hammer;
-import cz.krokviak.donkeykong.objects.Platform;
+import cz.krokviak.donkeykong.objects.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LevelOneGenerator implements LevelGenerator {
+    private final InputHandler inputHandler;
+    private final CollisionService collisionService;
+
+    public LevelOneGenerator(final InputHandler inputHandler,
+                             final CollisionService collisionService) {
+        this.inputHandler = inputHandler;
+        this.collisionService = collisionService;
+    }
+
     @Override
-    public StaticGeneration generate() {
+    public MapGeneration generate() {
+        final Barrels barrels = new Barrels();
+        barrels.setPosition(10, 95);
+
+        final List<Platform> platforms = createPlatforms();
+        final List<Item> hammers = createHammers();
+        final List<Ladder> ladders = createLadders();
+
+        final Player player = new Player(inputHandler);
+        player.setPosition(20, 700);
+
+        final Monkey monkey = new Monkey(collisionService);
+        monkey.setPosition(30, 15);
+
+        final Princess princess = new Princess();
+        princess.setPosition(180, 10);
+        final Background background = new Background();
+
+        final List<Drawable> drawables = new ArrayList<>(100);
+        drawables.add(background);
+        drawables.add(player);
+        drawables.add(monkey);
+        drawables.add(princess);
+        drawables.add(barrels);
+        drawables.addAll(ladders);
+        drawables.addAll(platforms);
+        drawables.addAll(hammers);
+
+        final List<Item> items = new ArrayList<>();
+        items.addAll(hammers);
+
+        final List<AABB> aabbs = new ArrayList<>();
+        aabbs.add(player);
+        aabbs.addAll(platforms);
+        aabbs.addAll(hammers);
+        aabbs.addAll(ladders);
+
+
+        return new MapGeneration(player, drawables, aabbs, items);
+    }
+
+    private List<Ladder> createLadders() {
+        final List<Ladder> ladders = new ArrayList<>();
+        final Ladder ladder1 = new Ladder(90);
+        ladder1.setPosition(630, 185);
+        ladders.add(ladder1);
+
+        final Ladder ladder2 = new Ladder(90);
+        ladder2.setPosition(150, 315);
+        ladders.add(ladder2);
+
+        final Ladder ladder3 = new Ladder(120);
+        ladder3.setPosition(350, 295);
+        ladders.add(ladder3);
+
+        final Ladder ladder4 = new Ladder(120);
+        ladder4.setPosition(500, 425);
+        ladders.add(ladder4);
+
+        final Ladder ladder5 = new Ladder(90);
+        ladder5.setPosition(150, 555);
+        ladders.add(ladder5);
+
+        final Ladder ladder6 = new Ladder(120);
+        ladder6.setPosition(430, 540);
+        ladders.add(ladder6);
+
+
+        final Ladder ladder7 = new Ladder(90);
+        ladder7.setPosition(630, 685);
+        ladders.add(ladder7);
+
+        return ladders;
+    }
+
+    private List<Item> createHammers() {
+        final List<Item> hammers = new ArrayList<>();
+        final Hammer hammer = new Hammer();
+        hammer.setPosition(50, 450);
+        hammers.add(hammer);
+
+        final Hammer hammer2 = new Hammer();
+        hammer2.setPosition(200, 220);
+        hammers.add(hammer2);
+        return hammers;
+    }
+
+    private List<Platform> createPlatforms() {
         final List<Platform> platforms = new ArrayList<>();
         // donkeykong platforms style level 1
         int riseY = 0;
@@ -76,24 +175,6 @@ public class LevelOneGenerator implements LevelGenerator {
         for (int i = 4; i < 7; i++) {
             platforms.add(new Platform(i * Platform.WIDTH, DonkeyKongApplication.HEIGHT - Platform.HEIGHT - riseY));
         }
-
-        final Barrels barrels = new Barrels();
-        barrels.setPosition(10, 95);
-
-        final Hammer hammer = new Hammer();
-        hammer.setPosition(50, 450);
-
-        final Hammer hammer2 = new Hammer();
-        hammer2.setPosition(200, 220);
-
-        final ArrayList<Drawable> drawables = new ArrayList<>();
-        drawables.addAll(platforms);
-        drawables.add(barrels);
-
-        final ArrayList<Item> items = new ArrayList<>();
-        items.add(hammer);
-        items.add(hammer2);
-
-        return new StaticGeneration(drawables, List.copyOf(platforms), items);
+        return platforms;
     }
 }

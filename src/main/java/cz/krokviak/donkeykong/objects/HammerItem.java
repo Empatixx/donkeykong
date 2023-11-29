@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.items;
+package cz.krokviak.donkeykong.objects;
 
 import cz.krokviak.donkeykong.utils.DelayedTask;
 

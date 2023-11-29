@@ -1,8 +1,9 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.items;
 
 import cz.krokviak.donkeykong.collision.AABB;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.items.Item;
+import cz.krokviak.donkeykong.objects.Player;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;

@@ -18,13 +18,8 @@ public class ItemService {
         for (final Item item : items) {
             if (item.shouldRemove()) {
                 collisionService.removeAABB(item);
-                continue;
             }
-            item.update(dt);
         }
         items.removeIf(Item::shouldRemove);
-    }
-    public void draw(final GraphicsContext gc) {
-        items.forEach(item -> item.draw(gc));
     }
 }

@@ -3,6 +3,7 @@ package cz.krokviak.donkeykong.objects;
 import cz.krokviak.donkeykong.collision.CollisionService;
 import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
+import cz.krokviak.donkeykong.drawable.Updatable;
 import cz.krokviak.donkeykong.utils.ScheduledTask;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
-public class Monkey implements Drawable {
+public class Monkey implements Drawable, Updatable {
     private final static int HEIGHT = 64;
     private final static int WIDTH = 64;
     private final static int SCALE = 3;
@@ -60,6 +61,7 @@ public class Monkey implements Drawable {
         this.position = new Point2D(x, y);
     }
 
+    @Override
     public void update(float dt) {
         if (animatedSprite.getCurrentAnimation().equals("side") && animatedSprite.hasFinishedAnimation()) {
             animatedSprite.setCurrentAnimation("idle");
