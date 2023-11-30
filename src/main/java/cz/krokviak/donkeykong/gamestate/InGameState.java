@@ -1,8 +1,6 @@
 package cz.krokviak.donkeykong.gamestate;
 
 import cz.krokviak.donkeykong.collision.CollisionService;
-import cz.krokviak.donkeykong.drawable.Background;
-import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.hud.Scoreboard;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.ItemService;
@@ -10,37 +8,26 @@ import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import cz.krokviak.donkeykong.maps.LevelOneGenerator;
 import cz.krokviak.donkeykong.maps.MapGeneration;
 import cz.krokviak.donkeykong.maps.MapService;
-import cz.krokviak.donkeykong.objects.Monkey;
 import cz.krokviak.donkeykong.objects.Player;
-import cz.krokviak.donkeykong.objects.Princess;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 
-import java.util.List;
-
 public class InGameState extends GameStateSupport implements GameState {
-    private final Player player;
+    private final InputHandler inputHandler;
+    private Player player;
     private final Canvas canvas = new Canvas(DonkeyKongApplication.WIDTH, DonkeyKongApplication.HEIGHT);
     private final GraphicsContext gc = canvas.getGraphicsContext2D();
-    private final CollisionService collisionService;
-    private final ItemService itemService;
-    private final MapService mapService;
-    private final Scoreboard scoreboard;
+    private CollisionService collisionService;
+    private ItemService itemService;
+    private MapService mapService;
+    private Scoreboard scoreboard;
 
     public InGameState(final GameStateManager gsm,
                        final InputHandler inputHandler,
                        final Pane pane) {
         super(gsm, pane);
-        collisionService = new CollisionService();
-        scoreboard = new Scoreboard();
-
-        final LevelOneGenerator levelOneGenerator = new LevelOneGenerator(inputHandler, collisionService);
-        final MapGeneration generation = levelOneGenerator.generate();
-
-        this.mapService = new MapService(generation, collisionService);
-        player = generation.player();
-        itemService = new ItemService(generation.items(), collisionService);
+        this.inputHandler = inputHandler;
     }
 
     @Override
@@ -49,6 +36,11 @@ public class InGameState extends GameStateSupport implements GameState {
         collisionService.update();
         itemService.update(dt);
         scoreboard.update(dt);
+        if (!player.isAlive() && player.hasLives() && player.canRespawn()) {
+            gameInit(player.getLives() - 1);
+        } else if (!player.hasLives()) {
+            gsm.setState(GameStateType.GAME_OVER);
+        }
     }
 
     @Override
@@ -62,9 +54,23 @@ public class InGameState extends GameStateSupport implements GameState {
 
     @Override
     public void init() {
+        gameInit(3);
+
         root.getChildren().clear();
         root.getChildren().add(canvas);
         canvas.setFocusTraversable(true);
+    }
+    private void gameInit(final int lives){
+        collisionService = new CollisionService();
+        scoreboard = new Scoreboard();
+
+        final LevelOneGenerator levelOneGenerator = new LevelOneGenerator(inputHandler, collisionService);
+        final MapGeneration generation = levelOneGenerator.generate();
+
+        this.mapService = new MapService(generation, collisionService);
+        player = generation.player();
+        player.setLives(lives);
+        itemService = new ItemService(generation.items(), collisionService);
     }
 
 }

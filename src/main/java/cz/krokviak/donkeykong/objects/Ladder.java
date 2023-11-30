@@ -8,12 +8,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class Ladder implements Drawable, AABB {
-    private static final int WIDTH = 32;
+    public static final int WIDTH = 32;
     private final int height;
     private Point2D position;
+    private LadderBarrelBox ladderBarrelBox;
     public Ladder(final int height) {
         this.height = height;
         this.position = new Point2D(0, 0);
+        ladderBarrelBox = new LadderBarrelBox(this);
     }
     @Override
     public void drawInternal(GraphicsContext gc) {
@@ -59,6 +61,18 @@ public class Ladder implements Drawable, AABB {
 
     public Point2D getUpPosition() {
         return new Point2D(position.getX(),
-                position.getY() - Player.HEIGHT*Player.SCALE);
+                position.getY()).add(WIDTH/2f,-20);
+    }
+    public Point2D getDownPosition() {
+        return new Point2D(position.getX(),
+                position.getY()).add(WIDTH/2f,height - 20);
+    }
+
+    public Point2D getPosition() {
+        return position;
+    }
+
+    public AABB getSubAABB() {
+        return ladderBarrelBox;
     }
 }

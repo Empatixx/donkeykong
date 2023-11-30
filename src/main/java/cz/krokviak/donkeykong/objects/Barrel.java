@@ -18,6 +18,7 @@ public class Barrel implements Drawable, AABB {
     private Point2D velocity;
     private final AnimatedSprite animation;
     private int totalBounces;
+    private final BarrelLadderDetector ladderDetector;
 
     public Barrel(final int totalBounces) {
         this.animation = AnimatedSprite.builder()
@@ -30,6 +31,7 @@ public class Barrel implements Drawable, AABB {
                 .scale(SCALE)
                 .build();
         animation.setCurrentAnimation("roll");
+        this.ladderDetector = new BarrelLadderDetector(this);
         this.totalBounces = totalBounces;
     }
 
@@ -43,8 +45,12 @@ public class Barrel implements Drawable, AABB {
     public void update(final float dt){
         position = position.add(velocity.multiply(dt));
         fixBounds();
-        velocity = velocity.add(0, GRAVITY * dt);
+        ladderDetector.update(dt);
         animation.update(dt);
+        if (ladderDetector.isClimbing()){
+            return;
+        }
+        velocity = velocity.add(0, GRAVITY * dt);
     }
 
     public void fixBounds() {
@@ -80,6 +86,9 @@ public class Barrel implements Drawable, AABB {
             player.kill();
         }
         else if (other instanceof Platform){
+            if (ladderDetector.isClimbing()){
+                return;
+            }
             final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
             if (intersection.getWidth() > intersection.getHeight()) {
                 if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
@@ -90,11 +99,22 @@ public class Barrel implements Drawable, AABB {
                     velocity = new Point2D(velocity.getX(), 0);
                 }
             }
+        } else if (other instanceof LadderBarrelBox box) {
+            boolean climbing = ladderDetector.setLadder(box.getLadder());
+            if (climbing) {
+                totalBounces--;
+                velocity = new Point2D(-velocity.getX(), velocity.getY());
+                return;
+            }
         }
 
     }
 
     public boolean shouldRemove() {
         return totalBounces <= 0;
+    }
+
+    public Point2D getPosition() {
+        return position;
     }
 }

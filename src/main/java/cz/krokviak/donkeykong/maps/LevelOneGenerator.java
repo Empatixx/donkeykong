@@ -33,7 +33,7 @@ public class LevelOneGenerator implements LevelGenerator {
         final List<Ladder> ladders = createLadders();
 
         final Player player = new Player(inputHandler);
-        player.setPosition(50, 550);
+        player.setPosition(50, 650);
 
         final Monkey monkey = new Monkey(collisionService);
         monkey.setPosition(30, 15);
@@ -60,6 +60,7 @@ public class LevelOneGenerator implements LevelGenerator {
         aabbs.addAll(platforms);
         aabbs.addAll(hammers);
         aabbs.addAll(ladders);
+        aabbs.addAll(ladders.stream().map(Ladder::getSubAABB).toList());
 
 
         return new MapGeneration(player, drawables, aabbs, items);
@@ -93,7 +94,7 @@ public class LevelOneGenerator implements LevelGenerator {
 
 
         final Ladder ladder7 = new Ladder(90);
-        ladder7.setPosition(630, 685);
+        ladder7.setPosition(630, 675);
         ladders.add(ladder7);
 
         return ladders;

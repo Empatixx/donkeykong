@@ -31,4 +31,12 @@ public class PlayerLives implements Drawable {
         }
 
     }
+
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
+    public int getLives() {
+        return lives;
+    }
 }

@@ -1,7 +1,6 @@
 package cz.krokviak.donkeykong.items;
 
 import cz.krokviak.donkeykong.collision.CollisionService;
-import javafx.scene.canvas.GraphicsContext;
 
 import java.util.List;
 
@@ -12,7 +11,6 @@ public class ItemService {
                        final CollisionService collisionService) {
         this.items = items;
         this.collisionService = collisionService;
-        collisionService.addAABB(List.copyOf(items));
     }
     public void update(final float dt) {
         for (final Item item : items) {
