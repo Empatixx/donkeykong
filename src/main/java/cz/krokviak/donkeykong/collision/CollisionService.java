@@ -1,7 +1,5 @@
 package cz.krokviak.donkeykong.collision;
 
-import cz.krokviak.donkeykong.main.DonkeyKongApplication;
-import cz.krokviak.donkeykong.objects.Barrel;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 

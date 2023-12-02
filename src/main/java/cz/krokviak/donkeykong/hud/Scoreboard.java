@@ -9,9 +9,10 @@ import java.util.List;
 public class Scoreboard {
     private final List<Score> scores = new ArrayList<>();
     private int totalScore;
-    public void addScore(final int score){
-        scores.add(new Score(score));
-        totalScore += score;
+    public Score addScore(final Score score){
+        scores.add(score);
+        totalScore += score.getScore();
+        return score;
     }
     public void update(final float dt){
         scores.forEach(score -> score.update(dt));
@@ -22,6 +23,10 @@ public class Scoreboard {
         gc.setFont(gc.getFont().font(20));
         gc.fillText("Score: " + totalScore, 700, 35);
         scores.forEach(score -> score.draw(gc));
+    }
+
+    public int getTotalScore() {
+        return totalScore;
     }
 }
 

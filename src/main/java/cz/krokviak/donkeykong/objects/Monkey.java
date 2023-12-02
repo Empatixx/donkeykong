@@ -4,25 +4,27 @@ import cz.krokviak.donkeykong.collision.CollisionService;
 import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.drawable.Updatable;
+import cz.krokviak.donkeykong.utils.DelayedTask;
 import cz.krokviak.donkeykong.utils.ScheduledTask;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 
 public class Monkey implements Drawable, Updatable {
     private final static int HEIGHT = 64;
     private final static int WIDTH = 64;
     private final static int SCALE = 3;
     private final static int BARREL_SPAWN_TIME = 5;
+    private final static int FLAME_BARREL_SPAWN_TIME = 10;
     private final AnimatedSprite animatedSprite;
     private Point2D position;
     private boolean rightFacing = false;
     private CollisionService collisionService;
     private ScheduledTask takeBarrelTask;
     private ScheduledTask spawnBarrelTask;
+    private final DelayedTask spawnFlameBarrelTask;
     private List<Barrel> barrels;
 
     public Monkey(final CollisionService collisionService) {
@@ -48,12 +50,20 @@ public class Monkey implements Drawable, Updatable {
             rightFacing = true;
             animatedSprite.setCurrentAnimation("side");
             animatedSprite.setFrameTimeCurrentAnimation(0.25f);
-            final Barrel barrel = new Barrel(6);
+            final DefaultBarrel barrel = new DefaultBarrel(6);
             barrel.setPosition(position.getX() + WIDTH * SCALE - 30, position.getY() + HEIGHT * SCALE - 50);
             barrel.setVelocity(100, 0);
             barrels.add(barrel);
             collisionService.addAABB(barrel);
+            takeBarrelTask.reset();
         }, BARREL_SPAWN_TIME);
+        spawnFlameBarrelTask = new DelayedTask(() -> {
+            final FlameBarrel barrel = new FlameBarrel();
+            barrel.setPosition(position.getX() + WIDTH * SCALE - 30, position.getY() + HEIGHT * SCALE - 50);
+            barrel.setVelocity(100, 0);
+            barrels.add(barrel);
+            collisionService.addAABB(barrel);
+        }, FLAME_BARREL_SPAWN_TIME);
         this.collisionService = collisionService;
     }
 
@@ -70,8 +80,9 @@ public class Monkey implements Drawable, Updatable {
         animatedSprite.update(dt);
         takeBarrelTask.update(dt);
         spawnBarrelTask.update(dt);
+        spawnFlameBarrelTask.update(dt);
         barrels.forEach(barrel -> barrel.update(dt));
-        for (Barrel barrel : barrels) {
+        for (final Barrel barrel : barrels) {
             if (barrel.shouldRemove()) {
                 collisionService.removeAABB(barrel);
             }

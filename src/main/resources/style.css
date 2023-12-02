@@ -1,0 +1,37 @@
+.root {
+    -fx-padding: 15;
+    -fx-spacing: 10;
+    -fx-alignment: center;
+}
+
+.label {
+    -fx-font-size: 24px;
+    -fx-font-family: "Arial";
+    -fx-text-fill: #333;
+}
+
+.table-view {
+    -fx-background-color: #fff;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-column {
+    -fx-alignment: center;
+}
+
+.button {
+    -fx-background-color: #ff4500;
+    -fx-text-fill: #fff;
+    -fx-font-weight: bold;
+    -fx-border-color: #e07b00;
+    -fx-border-width: 2;
+}
+
+.button:hover {
+    -fx-background-color: #e07b00;
+}
+
+.text-field {
+    -fx-font-size: 16px;
+    -fx-prompt-text-fill: #666;
+}

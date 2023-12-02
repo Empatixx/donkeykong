@@ -4,6 +4,7 @@ import cz.krokviak.donkeykong.collision.AABB;
 import cz.krokviak.donkeykong.collision.CollisionService;
 import cz.krokviak.donkeykong.drawable.Background;
 import cz.krokviak.donkeykong.drawable.Drawable;
+import cz.krokviak.donkeykong.hud.Scoreboard;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.Hammer;
 import cz.krokviak.donkeykong.items.Item;

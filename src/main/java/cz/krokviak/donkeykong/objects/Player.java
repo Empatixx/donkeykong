@@ -5,6 +5,8 @@ import cz.krokviak.donkeykong.collision.RectangleUtils;
 import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.drawable.Updatable;
+import cz.krokviak.donkeykong.hud.Score;
+import cz.krokviak.donkeykong.hud.Scoreboard;
 import cz.krokviak.donkeykong.input.GameAction;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.Hammer;
@@ -37,6 +39,7 @@ public class Player implements Drawable, AABB, Updatable {
     private Instant timeOfDeath;
     private HammerItem hammer;
     private PlayerLadderDetector playerLadderDetector;
+    private final Scoreboard scoreboard;
 
     public Player(final InputHandler inputHandler) {
         position = Point2D.ZERO;
@@ -61,6 +64,7 @@ public class Player implements Drawable, AABB, Updatable {
         hammer = new HammerItem();
         playerLives = new PlayerLives();
         playerLadderDetector = new PlayerLadderDetector(this);
+        this.scoreboard = new Scoreboard();
     }
 
     @Override
@@ -79,9 +83,10 @@ public class Player implements Drawable, AABB, Updatable {
         }
         animation.update(dt);
         playerLadderDetector.update(dt);
+        scoreboard.update(dt);
         if (playerLadderDetector.isClimbing()) {
             return;
-        } else if (animation.getCurrentAnimation().equals("climb")){
+        } else if (animation.getCurrentAnimation().equals("climb")) {
             animation.setCurrentAnimation("idle");
         }
         if (hammer.isActive()) {
@@ -170,7 +175,7 @@ public class Player implements Drawable, AABB, Updatable {
     public void drawInternal(final GraphicsContext gc) {
         animation.draw(gc);
         playerLives.draw(gc);
-
+        scoreboard.draw(gc);
         /*gc.setFill(Color.GREEN);
         gc.fillRect(position.getX(), position.getY(), WIDTH * SCALE, HEIGHT * SCALE);*/
 
@@ -189,7 +194,7 @@ public class Player implements Drawable, AABB, Updatable {
     public void onCollision(AABB other) {
         final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
         if (other instanceof Platform) {
-            if (playerLadderDetector.isClimbing()){
+            if (playerLadderDetector.isClimbing()) {
                 return;
             }
             if (intersection.getWidth() > intersection.getHeight()) {
@@ -251,7 +256,8 @@ public class Player implements Drawable, AABB, Updatable {
     public boolean hasLives() {
         return playerLives.canRespawn();
     }
-    public boolean canRespawn(){
+
+    public boolean canRespawn() {
         return Instant.now().isAfter(timeOfDeath.plusSeconds(RESPAWN_TIME));
     }
 
@@ -265,5 +271,15 @@ public class Player implements Drawable, AABB, Updatable {
 
     public int getLives() {
         return playerLives.getLives();
+    }
+
+    public void addScore(final int score) {
+        final Score scoreObj = new Score(score);
+        scoreObj.setPosition((float) position.getX(), (float) position.getY()+20);
+        scoreboard.addScore(scoreObj);
+    }
+
+    public int getTotalScore() {
+        return scoreboard.getTotalScore();
     }
 }

@@ -30,7 +30,7 @@ public class BarrelLadderDetector {
 
     private void climb() {
         climbing = true;
-        position = new InterpolatedPoint2D(barrel.getPosition(), ladder.getDownPosition().subtract(Barrel.WIDTH * Barrel.SCALE / 2f, Barrel.HEIGHT * Barrel.SCALE / 2f), 0.5f);
+        position = new InterpolatedPoint2D(barrel.getPosition(), ladder.getDownPosition().subtract(barrel.getWidth() / 2f, barrel.getHeight() / 2f), 0.5f);
     }
 
     public void update(float dt) {

@@ -1,6 +1,9 @@
 package cz.krokviak.donkeykong.gamestate;
 
 import cz.krokviak.donkeykong.collision.CollisionService;
+import cz.krokviak.donkeykong.hud.FilePersistanceService;
+import cz.krokviak.donkeykong.hud.GameScore;
+import cz.krokviak.donkeykong.hud.PersistanceService;
 import cz.krokviak.donkeykong.hud.Scoreboard;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.ItemService;
@@ -14,6 +17,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 
 public class InGameState extends GameStateSupport implements GameState {
+    private final PersistanceService persistanceService;
     private final InputHandler inputHandler;
     private Player player;
     private final Canvas canvas = new Canvas(DonkeyKongApplication.WIDTH, DonkeyKongApplication.HEIGHT);
@@ -21,13 +25,13 @@ public class InGameState extends GameStateSupport implements GameState {
     private CollisionService collisionService;
     private ItemService itemService;
     private MapService mapService;
-    private Scoreboard scoreboard;
 
     public InGameState(final GameStateManager gsm,
                        final InputHandler inputHandler,
                        final Pane pane) {
         super(gsm, pane);
         this.inputHandler = inputHandler;
+        persistanceService = new FilePersistanceService();
     }
 
     @Override
@@ -35,11 +39,11 @@ public class InGameState extends GameStateSupport implements GameState {
         mapService.update(dt);
         collisionService.update();
         itemService.update(dt);
-        scoreboard.update(dt);
         if (!player.isAlive() && player.hasLives() && player.canRespawn()) {
             gameInit(player.getLives() - 1);
         } else if (!player.hasLives()) {
-            gsm.setState(GameStateType.GAME_OVER);
+            persistanceService.addScore(new GameScore("aaa", player.getTotalScore()));
+            gsm.setState(GameStateType.MENU);
         }
     }
 
@@ -48,7 +52,6 @@ public class InGameState extends GameStateSupport implements GameState {
         gc.clearRect(0, 0, DonkeyKongApplication.WIDTH, DonkeyKongApplication.HEIGHT);
 
         mapService.draw(gc);
-        scoreboard.draw(gc);
         collisionService.draw(gc);
     }
 
@@ -62,7 +65,6 @@ public class InGameState extends GameStateSupport implements GameState {
     }
     private void gameInit(final int lives){
         collisionService = new CollisionService();
-        scoreboard = new Scoreboard();
 
         final LevelOneGenerator levelOneGenerator = new LevelOneGenerator(inputHandler, collisionService);
         final MapGeneration generation = levelOneGenerator.generate();
