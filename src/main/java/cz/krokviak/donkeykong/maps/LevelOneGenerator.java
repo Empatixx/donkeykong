@@ -9,6 +9,7 @@ import cz.krokviak.donkeykong.items.Hammer;
 import cz.krokviak.donkeykong.items.Item;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import cz.krokviak.donkeykong.objects.*;
+import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,8 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.climb;
+
+import cz.krokviak.donkeykong.objects.ClimbDirection;
+import cz.krokviak.donkeykong.objects.ClimbEntity;
+import cz.krokviak.donkeykong.objects.ladder.Ladder;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -23,7 +27,7 @@ public class ClimbServiceEnemyImpl implements ClimbService{
     public void setLadder(Ladder ladder) {
         final Ladder lastLadder = climbServiceImpl.getLadder();
         if (lastLadder == null || !lastLadder.equals(ladder) ) {
-            setLadder(ladder);
+            climbServiceImpl.setLadder(ladder);
             if (ThreadLocalRandom.current().nextFloat() < CLIMB_PROBABILITY) {
                 climb();
             }

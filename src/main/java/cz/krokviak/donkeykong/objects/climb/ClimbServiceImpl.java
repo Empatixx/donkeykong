@@ -1,5 +1,10 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.climb;
 
+import cz.krokviak.donkeykong.objects.ClimbDirection;
+import cz.krokviak.donkeykong.objects.ClimbEntity;
+import cz.krokviak.donkeykong.objects.ladder.CompositeLadder;
+import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
+import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import cz.krokviak.donkeykong.utils.InterpolatedPoint2D;
 
 import java.util.Set;
@@ -37,7 +42,7 @@ public class ClimbServiceImpl implements ClimbService {
 
     @Override
     public void stopClimbing() {
-
+        transformation = null;
     }
 
     @Override

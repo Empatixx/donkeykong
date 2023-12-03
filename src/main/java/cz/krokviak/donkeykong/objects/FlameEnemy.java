@@ -5,6 +5,7 @@ import cz.krokviak.donkeykong.collision.RectangleUtils;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.drawable.Updatable;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
+import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
 import cz.krokviak.donkeykong.utils.DelayedTask;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;

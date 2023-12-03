@@ -1,4 +1,6 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.climb;
+
+import cz.krokviak.donkeykong.objects.ladder.Ladder;
 
 public interface ClimbService {
     void climb();

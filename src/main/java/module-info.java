@@ -11,4 +11,7 @@ module cz.krokviak.donkeykong {
     exports cz.krokviak.donkeykong.objects;
     opens cz.krokviak.donkeykong.main to javafx.fxml;
     exports cz.krokviak.donkeykong.items;
+    exports cz.krokviak.donkeykong.objects.barrels;
+    exports cz.krokviak.donkeykong.objects.ladder;
+    exports cz.krokviak.donkeykong.objects.climb;
 }

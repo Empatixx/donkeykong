@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.barrels;
 
 import cz.krokviak.donkeykong.collision.AABB;
 import cz.krokviak.donkeykong.collision.RectangleUtils;

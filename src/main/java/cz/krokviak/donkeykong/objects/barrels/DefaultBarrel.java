@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.barrels;
 
 import cz.krokviak.donkeykong.collision.AABB;
 import cz.krokviak.donkeykong.collision.RectangleUtils;
@@ -6,11 +6,19 @@ import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.hud.Score;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
+import cz.krokviak.donkeykong.objects.ClimbDirection;
+import cz.krokviak.donkeykong.objects.ClimbEntity;
+import cz.krokviak.donkeykong.objects.climb.ClimbService;
+import cz.krokviak.donkeykong.objects.climb.ClimbServiceEnemyImpl;
+import cz.krokviak.donkeykong.objects.ladder.CompositeLadder;
+import cz.krokviak.donkeykong.objects.Platform;
+import cz.krokviak.donkeykong.objects.Player;
+import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public class DefaultBarrel implements Drawable, AABB, Barrel{
+public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
     public static final int WIDTH = 12;
     public static final int HEIGHT = 10;
     public static final int SCALE = 2;
@@ -19,7 +27,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel{
     private Point2D velocity;
     private final AnimatedSprite animation;
     private int totalBounces;
-    private final BarrelLadderDetector ladderDetector;
+    private final ClimbService climbService;
 
     public DefaultBarrel(final int totalBounces) {
         this.animation = AnimatedSprite.builder()
@@ -32,7 +40,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel{
                 .scale(SCALE)
                 .build();
         animation.setCurrentAnimation("roll");
-        this.ladderDetector = new BarrelLadderDetector(this);
+        this.climbService = new ClimbServiceEnemyImpl(this, ClimbDirection.DOWN);
         this.totalBounces = totalBounces;
     }
 
@@ -49,9 +57,9 @@ public class DefaultBarrel implements Drawable, AABB, Barrel{
     public void update(final float dt){
         position = position.add(velocity.multiply(dt));
         fixBounds();
-        ladderDetector.update(dt);
+       climbService.update(dt);
         animation.update(dt);
-        if (ladderDetector.isClimbing()){
+        if (climbService.isClimbing()){
             return;
         }
         velocity = velocity.add(0, GRAVITY * dt);
@@ -91,7 +99,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel{
             player.kill();
         }
         else if (other instanceof Platform){
-            if (ladderDetector.isClimbing()){
+            if (climbService.isClimbing()){
                 return;
             }
             final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
@@ -104,8 +112,12 @@ public class DefaultBarrel implements Drawable, AABB, Barrel{
                     velocity = new Point2D(velocity.getX(), 0);
                 }
             }
-        } else if (other instanceof CompositeLadder box) {
-            boolean climbing = ladderDetector.setLadder(box.getLadder());
+        } else if (other instanceof Ladder ladder) {
+            if (climbService.isClimbing()){
+                return;
+            }
+            climbService.setLadder(ladder);
+            final boolean climbing = climbService.isClimbing();
             if (climbing) {
                 totalBounces--;
                 velocity = new Point2D(-velocity.getX(), velocity.getY());
@@ -118,8 +130,14 @@ public class DefaultBarrel implements Drawable, AABB, Barrel{
         return totalBounces <= 0;
     }
 
+    @Override
     public Point2D getPosition() {
         return position;
+    }
+
+    @Override
+    public void setPosition(float x, float y) {
+        position = new Point2D(x, y);
     }
 
     @Override

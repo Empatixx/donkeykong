@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.ladder;
 
 import javafx.geometry.Point2D;
 

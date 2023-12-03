@@ -11,13 +11,16 @@ import cz.krokviak.donkeykong.input.GameAction;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.Hammer;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
+import cz.krokviak.donkeykong.objects.climb.ClimbService;
+import cz.krokviak.donkeykong.objects.climb.ClimbServiceImpl;
+import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.time.Instant;
 
-public class Player implements Drawable, AABB, Updatable {
+public class Player implements Drawable, AABB, Updatable, ClimbEntity {
     public final static int SCALE = 2;
     public final static int WIDTH = 64;
     public final static int HEIGHT = 64;
@@ -38,7 +41,7 @@ public class Player implements Drawable, AABB, Updatable {
     private boolean alive = true;
     private Instant timeOfDeath;
     private HammerItem hammer;
-    private PlayerLadderDetector playerLadderDetector;
+    private ClimbService climbService;
     private final Scoreboard scoreboard;
 
     public Player(final InputHandler inputHandler) {
@@ -63,14 +66,14 @@ public class Player implements Drawable, AABB, Updatable {
         animation.setCurrentAnimation("walk");
         hammer = new HammerItem();
         playerLifes = new PlayerLifes();
-        playerLadderDetector = new PlayerLadderDetector(this);
+        climbService = new ClimbServiceImpl(this, ClimbDirection.UP);
         this.scoreboard = new Scoreboard();
     }
 
     @Override
     public void update(float dt) {
         if (!alive) {
-            playerLadderDetector.stopClimbing();
+            climbService.stopClimbing();
             animation.update(dt);
             inputHandler.setActive(GameAction.MOVE_LEFT, false);
             inputHandler.setActive(GameAction.MOVE_RIGHT, false);
@@ -82,9 +85,9 @@ public class Player implements Drawable, AABB, Updatable {
             return;
         }
         animation.update(dt);
-        playerLadderDetector.update(dt);
+        climbService.update(dt);
         scoreboard.update(dt);
-        if (playerLadderDetector.isClimbing()) {
+        if (climbService.isClimbing()) {
             return;
         } else if (animation.getCurrentAnimation().equals("climb")) {
             animation.setCurrentAnimation("idle");
@@ -113,9 +116,9 @@ public class Player implements Drawable, AABB, Updatable {
 
     private void handleClimbing() {
         final boolean down = inputHandler.isActive(GameAction.MOVE_DOWN);
-        if (playerLadderDetector.getLadder() != null && down) {
+        if (climbService.getLadder() != null && down) {
             animation.setCurrentAnimation("climb");
-            playerLadderDetector.climb();
+            climbService.climb();
         }
     }
 
@@ -137,7 +140,7 @@ public class Player implements Drawable, AABB, Updatable {
             newVelocity = newVelocity.add(-SPEED, 0);
             rightFacing = false;
         }
-        if (up && grounded && !playerLadderDetector.isClimbing()) {
+        if (up && grounded && !climbService.isClimbing()) {
             newVelocity = newVelocity.add(0, -JUMP_SPEED);
             grounded = false;
         }
@@ -194,7 +197,7 @@ public class Player implements Drawable, AABB, Updatable {
     public void onCollision(AABB other) {
         final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
         if (other instanceof Platform) {
-            if (playerLadderDetector.isClimbing()) {
+            if (climbService.isClimbing()) {
                 return;
             }
             if (intersection.getWidth() > intersection.getHeight()) {
@@ -231,12 +234,23 @@ public class Player implements Drawable, AABB, Updatable {
         } else if (other instanceof Hammer) {
             hammer.activate();
         } else if (other instanceof DefaultLadder ladder) {
-            playerLadderDetector.setLadder(ladder);
+            climbService.setLadder(ladder);
         }
     }
 
+    @Override
     public void setPosition(float x, float y) {
         position = new Point2D(x, y);
+    }
+
+    @Override
+    public int getWidth() {
+        return WIDTH * SCALE;
+    }
+
+    @Override
+    public int getHeight() {
+        return HEIGHT * SCALE;
     }
 
     public void kill() {
@@ -249,6 +263,7 @@ public class Player implements Drawable, AABB, Updatable {
         return hammer.isActive();
     }
 
+    @Override
     public Point2D getPosition() {
         return position;
     }

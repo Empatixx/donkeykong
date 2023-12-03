@@ -31,6 +31,9 @@ public class FilePersistanceService implements PersistanceService{
 
     @Override
     public List<GameScore> load() {
+        if (!Files.exists(FILE_PATH)){
+            return List.of();
+        }
         try(final Stream<String> lines = Files.lines(FILE_PATH)){
             return lines
                     .map(line -> {
