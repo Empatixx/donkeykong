@@ -4,7 +4,6 @@ import cz.krokviak.donkeykong.collision.AABB;
 import cz.krokviak.donkeykong.collision.CollisionService;
 import cz.krokviak.donkeykong.drawable.Background;
 import cz.krokviak.donkeykong.drawable.Drawable;
-import cz.krokviak.donkeykong.hud.Scoreboard;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.Hammer;
 import cz.krokviak.donkeykong.items.Item;
@@ -31,7 +30,7 @@ public class LevelOneGenerator implements LevelGenerator {
 
         final List<Platform> platforms = createPlatforms();
         final List<Item> hammers = createHammers();
-        final List<Ladder> ladders = createLadders();
+        final List<DefaultLadder> ladders = createLadders();
 
         final Player player = new Player(inputHandler);
         player.setPosition(50, 650);
@@ -43,6 +42,9 @@ public class LevelOneGenerator implements LevelGenerator {
         princess.setPosition(180, 10);
         final Background background = new Background();
 
+        final Oil oil = new Oil(collisionService);
+        oil.setPosition(32, 728);
+
         final List<Drawable> drawables = new ArrayList<>(100);
         drawables.add(background);
         drawables.add(player);
@@ -52,6 +54,7 @@ public class LevelOneGenerator implements LevelGenerator {
         drawables.addAll(ladders);
         drawables.addAll(platforms);
         drawables.addAll(hammers);
+        drawables.add(oil);
 
         final List<Item> items = new ArrayList<>();
         items.addAll(hammers);
@@ -61,40 +64,40 @@ public class LevelOneGenerator implements LevelGenerator {
         aabbs.addAll(platforms);
         aabbs.addAll(hammers);
         aabbs.addAll(ladders);
-        aabbs.addAll(ladders.stream().map(Ladder::getSubAABB).toList());
+        aabbs.addAll(ladders.stream().map(DefaultLadder::getSubAABB).toList());
 
 
         return new MapGeneration(player, drawables, aabbs, items);
     }
 
-    private List<Ladder> createLadders() {
-       final List<Ladder> ladders = new ArrayList<>();
-        final Ladder ladder1 = new Ladder(90);
+    private List<DefaultLadder> createLadders() {
+       final List<DefaultLadder> ladders = new ArrayList<>();
+        final DefaultLadder ladder1 = new DefaultLadder(90);
         ladder1.setPosition(630, 185);
         ladders.add(ladder1);
 
-        final Ladder ladder2 = new Ladder(90);
+        final DefaultLadder ladder2 = new DefaultLadder(90);
         ladder2.setPosition(150, 315);
         ladders.add(ladder2);
 
-        final Ladder ladder3 = new Ladder(120);
+        final DefaultLadder ladder3 = new DefaultLadder(120);
         ladder3.setPosition(350, 295);
         ladders.add(ladder3);
 
-        final Ladder ladder4 = new Ladder(120);
+        final DefaultLadder ladder4 = new DefaultLadder(120);
         ladder4.setPosition(500, 425);
         ladders.add(ladder4);
 
-        final Ladder ladder5 = new Ladder(90);
+        final DefaultLadder ladder5 = new DefaultLadder(90);
         ladder5.setPosition(150, 555);
         ladders.add(ladder5);
 
-        final Ladder ladder6 = new Ladder(120);
+        final DefaultLadder ladder6 = new DefaultLadder(120);
         ladder6.setPosition(430, 540);
         ladders.add(ladder6);
 
 
-        final Ladder ladder7 = new Ladder(90);
+        final DefaultLadder ladder7 = new DefaultLadder(90);
         ladder7.setPosition(630, 675);
         ladders.add(ladder7);
 

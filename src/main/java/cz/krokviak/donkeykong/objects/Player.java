@@ -230,7 +230,7 @@ public class Player implements Drawable, AABB, Updatable {
             }
         } else if (other instanceof Hammer) {
             hammer.activate();
-        } else if (other instanceof Ladder ladder) {
+        } else if (other instanceof DefaultLadder ladder) {
             playerLadderDetector.setLadder(ladder);
         }
     }

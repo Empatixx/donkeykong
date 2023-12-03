@@ -104,7 +104,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel{
                     velocity = new Point2D(velocity.getX(), 0);
                 }
             }
-        } else if (other instanceof LadderBarrelBox box) {
+        } else if (other instanceof CompositeLadder box) {
             boolean climbing = ladderDetector.setLadder(box.getLadder());
             if (climbing) {
                 totalBounces--;

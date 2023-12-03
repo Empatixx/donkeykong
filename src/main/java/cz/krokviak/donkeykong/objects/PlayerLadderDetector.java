@@ -6,17 +6,17 @@ public class PlayerLadderDetector {
     private InterpolatedPoint2D position;
     private boolean climbing = false;
     private final Player player;
-    private Ladder ladder;
+    private DefaultLadder ladder;
 
     public PlayerLadderDetector(final Player player) {
         this.player = player;
     }
 
-    public void setLadder(Ladder ladder) {
+    public void setLadder(DefaultLadder ladder) {
         this.ladder = ladder;
     }
 
-    public Ladder getLadder() {
+    public DefaultLadder getLadder() {
         return ladder;
     }
 

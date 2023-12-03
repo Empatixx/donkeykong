@@ -4,21 +4,20 @@ import cz.krokviak.donkeykong.utils.InterpolatedPoint2D;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class BarrelLadderDetector {
+public class FlameLadderDetector {
     private final static float CLIMB_PROBABILITY = 0.25f;
     private InterpolatedPoint2D position;
     private boolean climbing = false;
-    private final Barrel barrel;
+    private final FlameEnemy flameEnemy;
     private DefaultLadder ladder;
 
-    public BarrelLadderDetector(final Barrel barrel) {
-        this.barrel = barrel;
+    public FlameLadderDetector(final FlameEnemy enemy) {
+        this.flameEnemy = enemy;
     }
 
     public boolean setLadder(DefaultLadder ladder) {
         if (this.ladder == null || !this.ladder.equals(ladder) ) {
             this.ladder = ladder;
-            System.out.println("Ladder set");
             if (ThreadLocalRandom.current().nextFloat() < CLIMB_PROBABILITY) {
                 climb();
                 return true;
@@ -29,7 +28,7 @@ public class BarrelLadderDetector {
 
     private void climb() {
         climbing = true;
-        position = new InterpolatedPoint2D(barrel.getPosition(), ladder.getDownPosition().subtract(barrel.getWidth() / 2f, barrel.getHeight() / 2f), 0.5f);
+        position = new InterpolatedPoint2D(flameEnemy.getPosition(), ladder.getDownPosition().subtract(flameEnemy.getWidth() / 2f, flameEnemy.getHeight() / 2f), 0.5f);
     }
 
     public void update(float dt) {
@@ -38,7 +37,7 @@ public class BarrelLadderDetector {
         }
         if (climbing && !position.isFinished()) {
             position.update(dt);
-            barrel.setPosition((float) position.get().getX(), (float) position.get().getY());
+            flameEnemy.setPosition((float) position.get().getX(), (float) position.get().getY());
             if (position.isFinished()) {
                 climbing = false;
             }
