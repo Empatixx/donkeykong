@@ -1,14 +1,17 @@
 package cz.krokviak.donkeykong.gamestate;
 
-import cz.krokviak.donkeykong.hud.FilePersistanceService;
-import cz.krokviak.donkeykong.hud.GameScore;
-import cz.krokviak.donkeykong.hud.PersistanceService;
-import cz.krokviak.donkeykong.main.DonkeyKongApplication;
+import cz.krokviak.donkeykong.persistance.FilePersistanceService;
+import cz.krokviak.donkeykong.persistance.GameScore;
+import cz.krokviak.donkeykong.persistance.PersistanceService;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+
+import java.util.Comparator;
+import java.util.List;
 
 public class MenuState extends GameStateSupport implements GameState {
     private final Text title;
@@ -16,11 +19,14 @@ public class MenuState extends GameStateSupport implements GameState {
     private final Button exitButton;
     private final TableView<GameScore> scoreTable;
     private final TextField nameField;
+    private final GamestateShareService gamestateShareService;
     private final PersistanceService persistanceService;
 
     public MenuState(final GameStateManager gsm,
+                     final GamestateShareService gamestateShareService,
                      final Pane pane) {
         super(gsm, pane);
+        this.gamestateShareService = gamestateShareService;
         persistanceService = new FilePersistanceService();
 
         title = new Text("Donkey Kong");
@@ -35,6 +41,7 @@ public class MenuState extends GameStateSupport implements GameState {
         nameField.setPromptText("Enter your name");
         nameField.setLayoutX(295);
         nameField.setLayoutY(200);
+        nameField.textProperty().addListener((observable, oldValue, newValue) -> gamestateShareService.setUsername(newValue));
 
         // Start button setup
         startButton = new Button("Start");
@@ -45,13 +52,6 @@ public class MenuState extends GameStateSupport implements GameState {
 
         startButton.setOnAction(event -> gsm.setState(GameStateType.IN_GAME));
 
-        // Exit button setup
-        exitButton = new Button("Exit");
-        exitButton.setPrefSize(100, 50);
-        exitButton.setLayoutX(350);
-        exitButton.setLayoutY(350);
-        exitButton.setOnAction(event -> System.exit(0));
-
         // Score table setup
         scoreTable = new TableView<>();
         String[] columnNames = {"Name", "Score"};
@@ -59,9 +59,25 @@ public class MenuState extends GameStateSupport implements GameState {
             scoreTable.getColumns().add(new TableColumn<>(columnName));
             scoreTable.getColumns().get(scoreTable.getColumns().size() - 1).setPrefWidth(350);
         }
+        scoreTable.getColumns().get(0).setCellValueFactory(cellData -> new SimpleObjectProperty(cellData.getValue().name()));
+        scoreTable.getColumns().get(1).setCellValueFactory(cellData -> new SimpleObjectProperty(cellData.getValue().score()));
         scoreTable.setPrefSize(716, 300);
         scoreTable.setLayoutY(450);
         scoreTable.setLayoutX(50);
+
+        final List<GameScore> scores = persistanceService.load();
+        scoreTable.getItems().addAll(scores);
+        scoreTable.getItems().sort(Comparator.comparing(GameScore::score).reversed());
+
+        // Exit button setup
+        exitButton = new Button("Exit");
+        exitButton.setPrefSize(100, 50);
+        exitButton.setLayoutX(350);
+        exitButton.setLayoutY(350);
+        exitButton.setOnAction(event -> {
+            persistanceService.save(scoreTable.getItems());
+            System.exit(0);
+        });
     }
 
     @Override
@@ -80,9 +96,10 @@ public class MenuState extends GameStateSupport implements GameState {
         root.getChildren().clear();
         root.getChildren().addAll(startButton, exitButton, title, scoreTable, nameField);
 
-        scoreTable.getItems().clear();
-        scoreTable.getItems().addAll(persistanceService.load());
+        final List<GameScore> scores = scoreTable.getItems();
+        scores.addAll(gamestateShareService.getScores());
+        scores.sort(Comparator.comparing(GameScore::score).reversed());
+        gamestateShareService.getScores().clear();
+
     }
-
-
 }

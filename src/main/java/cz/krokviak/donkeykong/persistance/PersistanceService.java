@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.hud;
+package cz.krokviak.donkeykong.persistance;
 
 import java.util.List;
 

@@ -1,10 +1,6 @@
 package cz.krokviak.donkeykong.gamestate;
 
 import cz.krokviak.donkeykong.collision.CollisionService;
-import cz.krokviak.donkeykong.hud.FilePersistanceService;
-import cz.krokviak.donkeykong.hud.GameScore;
-import cz.krokviak.donkeykong.hud.PersistanceService;
-import cz.krokviak.donkeykong.hud.Scoreboard;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.ItemService;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
@@ -17,7 +13,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 
 public class InGameState extends GameStateSupport implements GameState {
-    private final PersistanceService persistanceService;
+    private final GamestateShareService gamestateShareService;
     private final InputHandler inputHandler;
     private Player player;
     private final Canvas canvas = new Canvas(DonkeyKongApplication.WIDTH, DonkeyKongApplication.HEIGHT);
@@ -27,11 +23,12 @@ public class InGameState extends GameStateSupport implements GameState {
     private MapService mapService;
 
     public InGameState(final GameStateManager gsm,
+                       final GamestateShareService gamestateShareService,
                        final InputHandler inputHandler,
                        final Pane pane) {
         super(gsm, pane);
         this.inputHandler = inputHandler;
-        persistanceService = new FilePersistanceService();
+        this.gamestateShareService = gamestateShareService;
     }
 
     @Override
@@ -39,11 +36,13 @@ public class InGameState extends GameStateSupport implements GameState {
         mapService.update(dt);
         collisionService.update();
         itemService.update(dt);
-        if (!player.isAlive() && player.hasLives() && player.canRespawn()) {
-            gameInit(player.getLives() - 1);
-        } else if (!player.hasLives()) {
-            persistanceService.addScore(new GameScore("aaa", player.getTotalScore()));
-            gsm.setState(GameStateType.MENU);
+        if (!player.isAlive()) {
+            if (player.hasExtraLifes() && player.canRespawn()) {
+                gameInit(player.getLifes() - 1);
+            } else if (!player.hasExtraLifes() && player.canRespawn()){
+                gamestateShareService.addScore(player.getTotalScore());
+                gsm.setState(GameStateType.MENU);
+            }
         }
     }
 
@@ -57,7 +56,7 @@ public class InGameState extends GameStateSupport implements GameState {
 
     @Override
     public void init() {
-        gameInit(3);
+        gameInit(1);
 
         root.getChildren().clear();
         root.getChildren().add(canvas);

@@ -30,7 +30,7 @@ public class Player implements Drawable, AABB, Updatable {
     private final static int RESPAWN_TIME = 2;
     private final InputHandler inputHandler;
     private final AnimatedSprite animation;
-    private final PlayerLives playerLives;
+    private final PlayerLifes playerLifes;
     private Point2D position;
     private Point2D velocity;
     private boolean rightFacing = true;
@@ -62,7 +62,7 @@ public class Player implements Drawable, AABB, Updatable {
                 .build();
         animation.setCurrentAnimation("walk");
         hammer = new HammerItem();
-        playerLives = new PlayerLives();
+        playerLifes = new PlayerLifes();
         playerLadderDetector = new PlayerLadderDetector(this);
         this.scoreboard = new Scoreboard();
     }
@@ -174,7 +174,7 @@ public class Player implements Drawable, AABB, Updatable {
     @Override
     public void drawInternal(final GraphicsContext gc) {
         animation.draw(gc);
-        playerLives.draw(gc);
+        playerLifes.draw(gc);
         scoreboard.draw(gc);
         /*gc.setFill(Color.GREEN);
         gc.fillRect(position.getX(), position.getY(), WIDTH * SCALE, HEIGHT * SCALE);*/
@@ -253,8 +253,8 @@ public class Player implements Drawable, AABB, Updatable {
         return position;
     }
 
-    public boolean hasLives() {
-        return playerLives.canRespawn();
+    public boolean hasExtraLifes() {
+        return !playerLifes.isLastLife();
     }
 
     public boolean canRespawn() {
@@ -266,11 +266,11 @@ public class Player implements Drawable, AABB, Updatable {
     }
 
     public void setLives(int lives) {
-        playerLives.setLives(lives);
+        playerLifes.setLifes(lives);
     }
 
-    public int getLives() {
-        return playerLives.getLives();
+    public int getLifes() {
+        return playerLifes.getLifes();
     }
 
     public void addScore(final int score) {

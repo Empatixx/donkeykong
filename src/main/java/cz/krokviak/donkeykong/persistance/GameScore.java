@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.hud;
+package cz.krokviak.donkeykong.persistance;
 
 public record GameScore(
         String name,
@@ -7,5 +7,10 @@ public record GameScore(
     @Override
     public String toString() {
         return name + " " + score;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }

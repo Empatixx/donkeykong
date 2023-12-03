@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.hud;
+package cz.krokviak.donkeykong.persistance;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -4,39 +4,39 @@ import cz.krokviak.donkeykong.drawable.Drawable;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class PlayerLives implements Drawable {
-    private int lives;
+public class PlayerLifes implements Drawable {
+    private int lifes;
 
-    public PlayerLives() {
-        this.lives = 3;
+    public PlayerLifes() {
+        this.lifes = 1;
     }
 
     public void addLife() {
-        lives++;
+        lifes++;
     }
 
     public void removeLife() {
-        lives--;
+        lifes--;
     }
 
-    public boolean canRespawn() {
-        return lives > 0;
+    public boolean isLastLife() {
+        return lifes == 1;
     }
 
     @Override
     public void drawInternal(GraphicsContext gc) {
-        for (int i = 0; i < lives; i++) {
+        for (int i = 0; i < lifes; i++) {
             gc.setFill(Color.WHITE);
             gc.fillRect(700 + i * 20, 50, 10, 10);
         }
 
     }
 
-    public void setLives(int lives) {
-        this.lives = lives;
+    public void setLifes(int lifes) {
+        this.lifes = lifes;
     }
 
-    public int getLives() {
-        return lives;
+    public int getLifes() {
+        return lifes;
     }
 }
