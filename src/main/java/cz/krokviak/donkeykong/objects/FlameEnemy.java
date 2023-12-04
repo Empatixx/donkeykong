@@ -2,32 +2,54 @@ package cz.krokviak.donkeykong.objects;
 
 import cz.krokviak.donkeykong.collision.AABB;
 import cz.krokviak.donkeykong.collision.RectangleUtils;
+import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.drawable.Updatable;
+import cz.krokviak.donkeykong.hud.Score;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
-import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
+import cz.krokviak.donkeykong.objects.climb.ClimbService;
+import cz.krokviak.donkeykong.objects.climb.ClimbServiceProbability;
+import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import cz.krokviak.donkeykong.utils.DelayedTask;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public class FlameEnemy implements Drawable, Updatable, AABB {
-    private final static int WIDTH = 32;
-    private final static int HEIGHT = 32;
-    private final static int SCALE = 1;
+public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
+    private final static int SCALE = 2;
+    private final static int WIDTH = 18;
+    private final static int HEIGHT = 18;
     private final static int MOVE_SPEED = 96;
     private final static int LIVENESS = 45;
     private final static int GRAVITY = 90;
     private Point2D position;
     private Point2D velocity;
     private final DelayedTask deadTask;
+    private final AnimatedSprite animation;
+    private final ClimbService climbService;
     private boolean dead;
-    public FlameEnemy(){
+
+    public FlameEnemy() {
         velocity = new Point2D(MOVE_SPEED, 0);
         deadTask = new DelayedTask(() -> dead = true, LIVENESS);
+        animation = AnimatedSprite.builder()
+                .setFilePath("flame.png")
+                .addAnimationSequence("idle", 4)
+                .setFrameHeight(HEIGHT)
+                .setFrameWidth(WIDTH)
+                .setFrameTime(0.1f)
+                .positionSupplier(() -> position)
+                .isFlippedSupplier(() -> velocity.getX() > 0)
+                .scale(SCALE)
+                .build();
+        animation.setCurrentAnimation("idle");
+        climbService = new ClimbServiceProbability(this, ClimbDirection.UP);
     }
+
     @Override
     public void update(float dt) {
+        climbService.update(dt);
+        animation.update(dt);
         deadTask.update(dt);
         nextPosition(dt);
         fixBounds();
@@ -40,30 +62,34 @@ public class FlameEnemy implements Drawable, Updatable, AABB {
 
     @Override
     public void drawInternal(GraphicsContext gc) {
-        gc.fillRect(position.getX(), position.getY(), WIDTH, HEIGHT);
+        animation.drawInternal(gc);
     }
 
-    public void fixBounds(){
-        if (position.getX() < 0){
+    public void fixBounds() {
+        if (position.getX() < 0) {
             position = new Point2D(0, position.getY());
             velocity = new Point2D(-velocity.getX(), velocity.getY());
         }
-        if (position.getX() + WIDTH * SCALE > DonkeyKongApplication.WIDTH){
-            position = new Point2D(DonkeyKongApplication.WIDTH-WIDTH*SCALE, position.getY());
+        if (position.getX() + WIDTH * SCALE > DonkeyKongApplication.WIDTH) {
+            position = new Point2D(DonkeyKongApplication.WIDTH - WIDTH * SCALE, position.getY());
             velocity = new Point2D(-velocity.getX(), velocity.getY());
         }
-        System.out.println("X: " + velocity.getX() + " Y: "+ velocity.getY());
     }
 
     @Override
     public Rectangle2D getBoundingBox() {
-        return new Rectangle2D(position.getX(), position.getY(), WIDTH, HEIGHT);
+        return new Rectangle2D(position.getX(), position.getY(), WIDTH * SCALE, HEIGHT * SCALE);
     }
+
     private final static int STAIR_HEIGHT_THRESHOLD = 3; // Maximum height the player can step up automatically
+
     @Override
     public void onCollision(AABB other) {
         final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
-        if (other instanceof Platform){
+        if (other instanceof Platform) {
+            if (climbService.isClimbing()) {
+                return;
+            }
             if (intersection.getWidth() > intersection.getHeight()) {
                 // Collision from top or bottom of the player
                 if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
@@ -93,27 +119,36 @@ public class FlameEnemy implements Drawable, Updatable, AABB {
                     }
                 }
             }
-        } else if (other instanceof DefaultLadder){
-
+        } else if (other instanceof Player player) {
+            if (player.hasHammer()){
+                player.addScore(Score.MEDIUM_SCORE);
+                return;
+            }
+            player.kill();
+        } else if (other instanceof Ladder ladder){
+            climbService.setLadder(ladder);
         }
     }
 
     public void setPosition(final float x, final float y) {
-        position = new Point2D(x,y);
+        position = new Point2D(x, y);
     }
-    public boolean shouldRemove(){
+
+    @Override
+    public int getWidth() {
+        return WIDTH * SCALE;
+    }
+
+    @Override
+    public int getHeight() {
+        return HEIGHT * SCALE;
+    }
+
+    public boolean shouldRemove() {
         return dead;
     }
 
     public Point2D getPosition() {
         return position;
-    }
-
-    public int getHeight() {
-        return HEIGHT;
-    }
-
-    public int getWidth() {
-        return WIDTH;
     }
 }

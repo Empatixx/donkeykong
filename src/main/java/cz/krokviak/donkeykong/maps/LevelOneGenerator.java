@@ -44,7 +44,7 @@ public class LevelOneGenerator implements LevelGenerator {
         final Background background = new Background();
 
         final Oil oil = new Oil(collisionService);
-        oil.setPosition(32, 728);
+        oil.setPosition(32, 712);
 
         final List<Drawable> drawables = new ArrayList<>(100);
         drawables.add(background);

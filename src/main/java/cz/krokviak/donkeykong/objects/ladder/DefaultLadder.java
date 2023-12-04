@@ -61,13 +61,11 @@ public class DefaultLadder implements Drawable, AABB, Ladder {
 
     @Override
     public Point2D getUpPosition() {
-        return new Point2D(position.getX(),
-                position.getY()).add(WIDTH/2f,-20);
+        return new Point2D(position.getX(), position.getY()).add(WIDTH/2f,-20);
     }
     @Override
     public Point2D getDownPosition() {
-        return new Point2D(position.getX(),
-                position.getY()).add(WIDTH/2f,height - 20);
+        return new Point2D(position.getX(), position.getY()).add(WIDTH/2f,height);
     }
 
     public Point2D getPosition() {

@@ -9,8 +9,7 @@ import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import cz.krokviak.donkeykong.objects.ClimbDirection;
 import cz.krokviak.donkeykong.objects.ClimbEntity;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
-import cz.krokviak.donkeykong.objects.climb.ClimbServiceEnemyImpl;
-import cz.krokviak.donkeykong.objects.ladder.CompositeLadder;
+import cz.krokviak.donkeykong.objects.climb.ClimbServiceProbability;
 import cz.krokviak.donkeykong.objects.Platform;
 import cz.krokviak.donkeykong.objects.Player;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
@@ -40,7 +39,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
                 .scale(SCALE)
                 .build();
         animation.setCurrentAnimation("roll");
-        this.climbService = new ClimbServiceEnemyImpl(this, ClimbDirection.DOWN);
+        this.climbService = new ClimbServiceProbability(this, ClimbDirection.DOWN);
         this.totalBounces = totalBounces;
     }
 

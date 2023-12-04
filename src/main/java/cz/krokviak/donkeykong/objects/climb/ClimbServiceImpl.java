@@ -27,6 +27,9 @@ public class ClimbServiceImpl implements ClimbService {
 
     @Override
     public void climb() {
+        if (ladder == null || !isValid()){
+            return;
+        }
         if (ladder instanceof DefaultLadder && directions.contains(ClimbDirection.UP)){
             transformation = new InterpolatedPoint2D(
                     entity.getPosition(),
@@ -66,10 +69,14 @@ public class ClimbServiceImpl implements ClimbService {
             return;
         }
         if (transformation.isFinished()){
+            ladder = null;
             transformation = null;
             return;
         }
         transformation.update(dt);
         entity.setPosition((float) transformation.get().getX(), (float) transformation.get().getY());
+    }
+    private boolean isValid(){
+        return ladder.getBoundingBox().intersects(entity.getBoundingBox());
     }
 }

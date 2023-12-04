@@ -1,6 +1,7 @@
 package cz.krokviak.donkeykong.objects;
 
 import cz.krokviak.donkeykong.collision.CollisionService;
+import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.drawable.Updatable;
 import cz.krokviak.donkeykong.utils.ScheduledTask;
@@ -12,15 +13,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Oil implements Drawable, Updatable {
-    private final static int WIDTH = 32;
-    private final static int HEIGHT = 48;
+    private final static int WIDTH = 16;
+    private final static int HEIGHT = 32;
+    private final static int SCALE = 2;
     private final static int SPAWN_TIME = 5;
     private Point2D position;
     private ScheduledTask spawnFlameTask;
     private final List<FlameEnemy> flames;
     private final CollisionService collisionService;
+    private final AnimatedSprite animation;
     public Oil(final CollisionService collisionService){
         this.collisionService = collisionService;
+        animation = AnimatedSprite.builder()
+                .setFilePath("oil.png")
+                .addAnimationSequence("idle", 4)
+                .addAnimationSequence("not-active", 1)
+                .setFrameHeight(HEIGHT)
+                .setFrameWidth(WIDTH)
+                .setFrameTime(0.1f)
+                .positionSupplier(() -> position)
+                .isFlippedSupplier(() -> true)
+                .scale(SCALE)
+                .build();
+        animation.setCurrentAnimation("idle");
         flames = new ArrayList<>();
         spawnFlameTask = new ScheduledTask(() -> {
             final FlameEnemy enemy = new FlameEnemy();
@@ -34,14 +49,14 @@ public class Oil implements Drawable, Updatable {
     }
     @Override
     public void drawInternal(GraphicsContext gc) {
-        gc.setFill(Color.RED);
-        gc.fillRect(position.getX(), position.getY(), WIDTH, HEIGHT);
+        animation.drawInternal(gc);
         flames.forEach(flame -> flame.drawInternal(gc));
     }
 
     @Override
     public void update(float dt) {
         spawnFlameTask.update(dt);
+        animation.update(dt);
         flames.forEach(flame -> flame.update(dt));
         flames.stream()
                 .filter(FlameEnemy::shouldRemove)
