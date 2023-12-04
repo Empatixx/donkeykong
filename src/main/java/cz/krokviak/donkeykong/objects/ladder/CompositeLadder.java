@@ -4,7 +4,7 @@ import cz.krokviak.donkeykong.collision.AABB;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 
-public class CompositeLadder implements AABB, Ladder{
+public final class CompositeLadder implements AABB, Ladder{
     private final static int WIDTH = 32;
     private final static int HEIGHT = 32;
     private final DefaultLadder ladder;

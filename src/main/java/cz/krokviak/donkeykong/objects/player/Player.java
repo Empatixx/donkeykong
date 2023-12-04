@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.player;
 
 import cz.krokviak.donkeykong.collision.AABB;
 import cz.krokviak.donkeykong.collision.RectangleUtils;
@@ -11,6 +11,10 @@ import cz.krokviak.donkeykong.input.GameAction;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.Hammer;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
+import cz.krokviak.donkeykong.objects.ClimbDirection;
+import cz.krokviak.donkeykong.objects.ClimbEntity;
+import cz.krokviak.donkeykong.objects.HammerItem;
+import cz.krokviak.donkeykong.objects.Platform;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
 import cz.krokviak.donkeykong.objects.climb.ClimbServiceImpl;
 import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
@@ -63,7 +67,7 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
                 .isFlippedSupplier(() -> !rightFacing)
                 .scale(SCALE)
                 .build();
-        animation.setCurrentAnimation("walk");
+        animation.setCurrentAnimation("idle");
         hammer = new HammerItem();
         playerLifes = new PlayerLifes();
         climbService = new ClimbServiceImpl(this, ClimbDirection.UP);
@@ -115,6 +119,9 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
     }
 
     private void handleClimbing() {
+        if (!grounded) {
+            return;
+        }
         final boolean down = inputHandler.isActive(GameAction.MOVE_DOWN);
         if (climbService.getLadder() != null && down) {
             animation.setCurrentAnimation("climb");
@@ -196,45 +203,46 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
     @Override
     public void onCollision(AABB other) {
         final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
-        if (other instanceof Platform) {
-            if (climbService.isClimbing()) {
-                return;
-            }
-            if (intersection.getWidth() > intersection.getHeight()) {
-                // Collision from top or bottom of the player
-                if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
-                    // Player lands on the platform
-                    position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
-                    grounded = true; // Player is on the ground
-                    if (velocity.getY() > 0) {
+        switch (other){
+            case Platform platform -> {
+                if (climbService.isClimbing()) {
+                    return;
+                }
+                if (intersection.getWidth() > intersection.getHeight()) {
+                    // Collision from top or bottom of the player
+                    if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
+                        // Player lands on the platform
+                        position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
+                        grounded = true; // Player is on the ground
+                        if (velocity.getY() > 0) {
+                            velocity = new Point2D(velocity.getX(), 0);
+                        }
+                    } else if (intersection.getMinY() == getBoundingBox().getMinY()) {
+                        // Player hits the ceiling
+                        position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
                         velocity = new Point2D(velocity.getX(), 0);
                     }
-                } else if (intersection.getMinY() == getBoundingBox().getMinY()) {
-                    // Player hits the ceiling
-                    position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
-                    velocity = new Point2D(velocity.getX(), 0);
-                }
-            } else {
-                if (intersection.getMaxX() == getBoundingBox().getMaxX() || intersection.getMinX() == getBoundingBox().getMinX()) {
-                    // Check if the player can step up a stair
-                    double deltaY = other.getBoundingBox().getMinY() - getBoundingBox().getMaxY();
-                    if (Math.abs(deltaY) <= STAIR_HEIGHT_THRESHOLD && grounded) {
-                        // Adjust position to step up the stair
-                        position = new Point2D(position.getX(), position.getY() + deltaY);
-                    } else {
-                        // Standard side collision response
-                        if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
-                            position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                } else {
+                    if (intersection.getMaxX() == getBoundingBox().getMaxX() || intersection.getMinX() == getBoundingBox().getMinX()) {
+                        // Check if the player can step up a stair
+                        double deltaY = other.getBoundingBox().getMinY() - getBoundingBox().getMaxY();
+                        if (Math.abs(deltaY) <= STAIR_HEIGHT_THRESHOLD && grounded) {
+                            // Adjust position to step up the stair
+                            position = new Point2D(position.getX(), position.getY() + deltaY);
                         } else {
-                            position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                            // Standard side collision response
+                            if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
+                                position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                            } else {
+                                position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                            }
                         }
                     }
                 }
             }
-        } else if (other instanceof Hammer) {
-            hammer.activate();
-        } else if (other instanceof DefaultLadder ladder) {
-            climbService.setLadder(ladder);
+            case Hammer hammer -> this.hammer.activate();
+            case DefaultLadder ladder -> climbService.setLadder(ladder);
+            default -> {}
         }
     }
 
@@ -296,5 +304,22 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
 
     public int getTotalScore() {
         return scoreboard.getTotalScore();
+    }
+
+    public void reset(){
+        alive = true;
+        animation.setCurrentAnimation("idle");
+        climbService.stopClimbing();
+        climbService.setLadder(null);
+        position = Point2D.ZERO;
+        velocity = Point2D.ZERO;
+        hammer = new HammerItem();
+    }
+
+    public void setPreviousPlayer(final Player lastPlayer) {
+        if (lastPlayer == null){
+            return;
+        }
+        setLives(lastPlayer.getLifes() - 1);
     }
 }

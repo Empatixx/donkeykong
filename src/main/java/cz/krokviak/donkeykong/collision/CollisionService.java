@@ -42,4 +42,12 @@ public class CollisionService {
         }
         aabbs.remove(aabb);
     }
+
+    public List<AABB> getAabbs() {
+        return aabbs;
+    }
+
+    public void clear() {
+        aabbs.clear();
+    }
 }

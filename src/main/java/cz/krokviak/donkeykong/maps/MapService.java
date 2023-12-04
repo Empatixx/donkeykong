@@ -3,6 +3,7 @@ package cz.krokviak.donkeykong.maps;
 import cz.krokviak.donkeykong.collision.CollisionService;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.drawable.Updatable;
+import cz.krokviak.donkeykong.items.ItemService;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.io.FileInputStream;
@@ -13,7 +14,8 @@ public class MapService {
     private final List<Drawable> drawableList;
 
     public MapService(final MapGeneration mapGeneration,
-                      final CollisionService collisionService) {
+                      final CollisionService collisionService,
+                      final ItemService itemService) {
         this.updatableList = List.copyOf(mapGeneration
                 .drawables()
                 .stream()
@@ -22,6 +24,7 @@ public class MapService {
                 .toList());
         this.drawableList = List.copyOf(mapGeneration.drawables());
         collisionService.addAABB(mapGeneration.collisions());
+        itemService.addItems(mapGeneration.items());
     }
 
     public void draw(final GraphicsContext gc) {

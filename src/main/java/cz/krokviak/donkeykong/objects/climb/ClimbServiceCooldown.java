@@ -2,13 +2,14 @@ package cz.krokviak.donkeykong.objects.climb;
 
 import cz.krokviak.donkeykong.objects.ClimbDirection;
 import cz.krokviak.donkeykong.objects.ClimbEntity;
+import cz.krokviak.donkeykong.objects.ladder.CompositeLadder;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ClimbServiceCooldown implements ClimbService {
-    private final static float CLIMB_COOLDOWN_SECONDS = 10f;
+    private final static float CLIMB_COOLDOWN_SECONDS = 5f;
     private final Map<Ladder, Float> ladderCooldowns;
     private final ClimbService climbService;
 
@@ -29,7 +30,12 @@ public class ClimbServiceCooldown implements ClimbService {
     }
 
     @Override
-    public void setLadder(Ladder ladder) {
+    public void setLadder(final Ladder ladder) {
+        if (ladder instanceof CompositeLadder compositeLadder){
+            if (ladderCooldowns.containsKey(compositeLadder.getLadder())){
+                return;
+            }
+        }
         if (ladderCooldowns.containsKey(ladder)) {
             return;
         }

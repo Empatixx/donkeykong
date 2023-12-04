@@ -10,6 +10,8 @@ import cz.krokviak.donkeykong.items.Item;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import cz.krokviak.donkeykong.objects.*;
 import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
+import cz.krokviak.donkeykong.objects.player.Player;
+import cz.krokviak.donkeykong.objects.princess.Princess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +20,8 @@ public class LevelOneGenerator implements LevelGenerator {
     private final InputHandler inputHandler;
     private final CollisionService collisionService;
 
-    public LevelOneGenerator(final InputHandler inputHandler,
-                             final CollisionService collisionService) {
+    public LevelOneGenerator(final CollisionService collisionService,
+                             final InputHandler inputHandler) {
         this.inputHandler = inputHandler;
         this.collisionService = collisionService;
     }
@@ -72,24 +74,24 @@ public class LevelOneGenerator implements LevelGenerator {
     }
 
     private List<DefaultLadder> createLadders() {
-       final List<DefaultLadder> ladders = new ArrayList<>();
+        final List<DefaultLadder> ladders = new ArrayList<>();
         final DefaultLadder ladder1 = new DefaultLadder(90);
         ladder1.setPosition(630, 185);
         ladders.add(ladder1);
 
-        final DefaultLadder ladder2 = new DefaultLadder(90);
+        final DefaultLadder ladder2 = new DefaultLadder(85);
         ladder2.setPosition(150, 315);
         ladders.add(ladder2);
 
-        final DefaultLadder ladder3 = new DefaultLadder(120);
+        final DefaultLadder ladder3 = new DefaultLadder(115);
         ladder3.setPosition(350, 295);
         ladders.add(ladder3);
 
-        final DefaultLadder ladder4 = new DefaultLadder(120);
+        final DefaultLadder ladder4 = new DefaultLadder(115);
         ladder4.setPosition(500, 415);
         ladders.add(ladder4);
 
-        final DefaultLadder ladder5 = new DefaultLadder(90);
+        final DefaultLadder ladder5 = new DefaultLadder(85);
         ladder5.setPosition(150, 555);
         ladders.add(ladder5);
 
@@ -98,7 +100,7 @@ public class LevelOneGenerator implements LevelGenerator {
         ladders.add(ladder6);
 
 
-        final DefaultLadder ladder7 = new DefaultLadder(90);
+        final DefaultLadder ladder7 = new DefaultLadder(85);
         ladder7.setPosition(630, 675);
         ladders.add(ladder7);
 

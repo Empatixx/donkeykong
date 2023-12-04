@@ -30,16 +30,25 @@ public class ClimbServiceImpl implements ClimbService {
         if (ladder == null || !isValid()){
             return;
         }
-        if (ladder instanceof DefaultLadder && directions.contains(ClimbDirection.UP)){
-            transformation = new InterpolatedPoint2D(
-                    entity.getPosition(),
-                    ladder.getUpPosition().subtract(entity.getWidth() / 2f, entity.getHeight() / 2f),
-                    CLIMB_TIME);
-        } else if (ladder instanceof CompositeLadder && directions.contains(ClimbDirection.DOWN)){
-            transformation = new InterpolatedPoint2D(
-                    entity.getPosition(),
-                    ladder.getDownPosition().subtract(entity.getWidth() / 2f, entity.getHeight() / 2f),
-                    CLIMB_TIME);
+        switch (ladder){
+            case DefaultLadder defaultLadder -> {
+                if (!directions.contains(ClimbDirection.UP)){
+                    return;
+                }
+                transformation = new InterpolatedPoint2D(
+                        entity.getPosition(),
+                        ladder.getUpPosition().subtract(entity.getWidth() / 2f, entity.getHeight() / 2f),
+                        CLIMB_TIME);
+            }
+            case CompositeLadder compositeLadder -> {
+                if (!directions.contains(ClimbDirection.DOWN)) {
+                    return;
+                }
+                transformation = new InterpolatedPoint2D(
+                        entity.getPosition(),
+                        ladder.getUpPosition().subtract(entity.getWidth() / 2f, entity.getHeight() / 2f),
+                        CLIMB_TIME);
+            }
         }
     }
 

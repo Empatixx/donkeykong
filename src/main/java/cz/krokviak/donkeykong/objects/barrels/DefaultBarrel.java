@@ -11,7 +11,7 @@ import cz.krokviak.donkeykong.objects.ClimbEntity;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
 import cz.krokviak.donkeykong.objects.climb.ClimbServiceProbability;
 import cz.krokviak.donkeykong.objects.Platform;
-import cz.krokviak.donkeykong.objects.Player;
+import cz.krokviak.donkeykong.objects.player.Player;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -89,37 +89,45 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
 
     @Override
     public void onCollision(AABB other) {
-        if (other instanceof Player player) {
-            if (player.hasHammer()) {
-                player.addScore(Score.LOW_SCORE);
-                totalBounces = 0;
-                return;
+        switch (other){
+            case Player player -> {
+                if (player.hasHammer()) {
+                    player.addScore(Score.MEDIUM_SCORE);
+                    totalBounces = 0;
+                    return;
+                }
+                if (!player.isAlive()){
+                    return;
+                }
+                player.kill();
             }
-            player.kill();
-        } else if (other instanceof Platform) {
-            if (climbService.isClimbing()) {
-                return;
-            }
-            final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
-            if (intersection.getWidth() > intersection.getHeight()) {
-                if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
-                    position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
-                    velocity = new Point2D(velocity.getX(), 0);
-                } else {
-                    position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
-                    velocity = new Point2D(velocity.getX(), 0);
+            case Platform platform -> {
+                if (climbService.isClimbing()) {
+                    return;
+                }
+                final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
+                if (intersection.getWidth() > intersection.getHeight()) {
+                    if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
+                        position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
+                        velocity = new Point2D(velocity.getX(), 0);
+                    } else {
+                        position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
+                        velocity = new Point2D(velocity.getX(), 0);
+                    }
                 }
             }
-        } else if (other instanceof Ladder ladder) {
-            if (climbService.isClimbing()) {
-                return;
+            case Ladder ladder -> {
+                if (climbService.isClimbing()) {
+                    return;
+                }
+                climbService.setLadder(ladder);
+                final boolean climbing = climbService.isClimbing();
+                if (climbing) {
+                    totalBounces--;
+                    velocity = new Point2D(-velocity.getX(), velocity.getY());
+                }
             }
-            climbService.setLadder(ladder);
-            final boolean climbing = climbService.isClimbing();
-            if (climbing) {
-                totalBounces--;
-                velocity = new Point2D(-velocity.getX(), velocity.getY());
-            }
+            default -> {}
         }
 
     }

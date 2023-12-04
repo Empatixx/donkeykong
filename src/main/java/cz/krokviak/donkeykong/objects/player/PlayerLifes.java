@@ -1,14 +1,15 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.player;
 
 import cz.krokviak.donkeykong.drawable.Drawable;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class PlayerLifes implements Drawable {
+    public static final int TOTAL_LIFES = 3;
     private int lifes;
 
     public PlayerLifes() {
-        this.lifes = 1;
+        this.lifes =TOTAL_LIFES;
     }
 
     public void addLife() {

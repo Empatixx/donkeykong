@@ -7,7 +7,8 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class DefaultLadder implements Drawable, AABB, Ladder {
+public final class DefaultLadder implements Drawable, AABB, Ladder {
+    private final static int OFFSET = 20;
     public static final int WIDTH = 32;
     private final int height;
     private Point2D position;
@@ -61,11 +62,11 @@ public class DefaultLadder implements Drawable, AABB, Ladder {
 
     @Override
     public Point2D getUpPosition() {
-        return new Point2D(position.getX(), position.getY()).add(WIDTH/2f,-20);
+        return new Point2D(position.getX(), position.getY()).add(WIDTH/2f,-OFFSET);
     }
     @Override
     public Point2D getDownPosition() {
-        return new Point2D(position.getX(), position.getY()).add(WIDTH/2f,height);
+        return new Point2D(position.getX(), position.getY()).add(WIDTH/2f,height - OFFSET);
     }
 
     public Point2D getPosition() {

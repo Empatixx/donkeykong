@@ -32,14 +32,14 @@ public class Oil implements Drawable, Updatable {
                 .setFrameWidth(WIDTH)
                 .setFrameTime(0.1f)
                 .positionSupplier(() -> position)
-                .isFlippedSupplier(() -> true)
+                .isFlippedSupplier(() -> false)
                 .scale(SCALE)
                 .build();
         animation.setCurrentAnimation("idle");
         flames = new ArrayList<>();
         spawnFlameTask = new ScheduledTask(() -> {
-            final FlameEnemy enemy = new FlameEnemy();
-            enemy.setPosition((float) position.getX(), (float) position.getY());
+            final FlameEnemy enemy = new FlameEnemy(collisionService);
+            enemy.setPosition((float) position.getX(), (float) position.getY()+HEIGHT);
             flames.add(enemy);
             collisionService.addAABB(enemy);
         }, SPAWN_TIME);

@@ -1,16 +1,18 @@
 package cz.krokviak.donkeykong.objects;
 
 import cz.krokviak.donkeykong.collision.AABB;
+import cz.krokviak.donkeykong.collision.CollisionService;
 import cz.krokviak.donkeykong.collision.RectangleUtils;
 import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.drawable.Updatable;
 import cz.krokviak.donkeykong.hud.Score;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
+import cz.krokviak.donkeykong.objects.climb.AntiFallService;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
 import cz.krokviak.donkeykong.objects.climb.ClimbServiceCooldown;
-import cz.krokviak.donkeykong.objects.climb.ClimbServiceProbability;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
+import cz.krokviak.donkeykong.objects.player.Player;
 import cz.krokviak.donkeykong.utils.DelayedTask;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -28,9 +30,10 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
     private final DelayedTask deadTask;
     private final AnimatedSprite animation;
     private final ClimbService climbService;
+    private final AntiFallService antiFallService;
     private boolean dead;
 
-    public FlameEnemy() {
+    public FlameEnemy(final CollisionService collisionService) {
         velocity = new Point2D(MOVE_SPEED, 0);
         deadTask = new DelayedTask(() -> dead = true, LIVENESS);
         animation = AnimatedSprite.builder()
@@ -44,7 +47,22 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
                 .scale(SCALE)
                 .build();
         animation.setCurrentAnimation("idle");
-        climbService = new ClimbServiceCooldown(this, ClimbDirection.UP);
+        climbService = new ClimbServiceCooldown(this, ClimbDirection.UP, ClimbDirection.DOWN);
+        antiFallService = new AntiFallService(new AABB() {
+            @Override
+            public Rectangle2D getBoundingBox() {
+                if (velocity.getX() > 0){
+                    return new Rectangle2D(position.getX() + WIDTH * SCALE, position.getY(), WIDTH * SCALE,HEIGHT * SCALE);
+                } else {
+                    return new Rectangle2D(position.getX() - WIDTH * SCALE, position.getY(), WIDTH * SCALE,HEIGHT * SCALE);
+                }
+            }
+
+            @Override
+            public void onCollision(AABB other) {
+
+            }
+        },collisionService);
     }
 
     @Override
@@ -52,8 +70,19 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
         climbService.update(dt);
         animation.update(dt);
         deadTask.update(dt);
+        antiFall();
         nextPosition(dt);
         fixBounds();
+    }
+
+    private void antiFall() {
+        if (climbService.isClimbing()){
+            return;
+        }
+        final boolean nextStepWillFall = antiFallService.nextStepWillFall();
+        if (nextStepWillFall){
+            velocity = new Point2D(-velocity.getX(), velocity.getY());
+        }
     }
 
     private void nextPosition(final float dt) {
@@ -87,47 +116,53 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
     @Override
     public void onCollision(AABB other) {
         final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
-        if (other instanceof Platform) {
-            if (climbService.isClimbing()) {
-                return;
-            }
-            if (intersection.getWidth() > intersection.getHeight()) {
-                // Collision from top or bottom of the player
-                if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
-                    // Player lands on the platform
-                    position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
-                    if (velocity.getY() > 0) {
-                        velocity = new Point2D(velocity.getX(), 0);
-                    }
-                } else if (intersection.getMinY() == getBoundingBox().getMinY()) {
-                    // Player hits the ceiling
-                    position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
+        switch (other){
+            case Platform platform -> {
+                if (climbService.isClimbing()) {
+                    return;
                 }
-            } else {
-                if (intersection.getMaxX() == getBoundingBox().getMaxX() || intersection.getMinX() == getBoundingBox().getMinX()) {
-                    // Check if the player can step up a stair
-                    double deltaY = other.getBoundingBox().getMinY() - getBoundingBox().getMaxY();
-                    if (Math.abs(deltaY) <= STAIR_HEIGHT_THRESHOLD) {
-                        // Adjust position to step up the stair
-                        position = new Point2D(position.getX(), position.getY() + deltaY);
-                    } else {
-                        // Standard side collision response
-                        if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
-                            position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                if (intersection.getWidth() > intersection.getHeight()) {
+                    // Collision from top or bottom of the player
+                    if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
+                        // Player lands on the platform
+                        position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
+                        if (velocity.getY() > 0) {
+                            velocity = new Point2D(velocity.getX(), 0);
+                        }
+                    } else if (intersection.getMinY() == getBoundingBox().getMinY()) {
+                        // Player hits the ceiling
+                        position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
+                    }
+                } else {
+                    if (intersection.getMaxX() == getBoundingBox().getMaxX() || intersection.getMinX() == getBoundingBox().getMinX()) {
+                        // Check if the player can step up a stair
+                        double deltaY = other.getBoundingBox().getMinY() - getBoundingBox().getMaxY();
+                        if (Math.abs(deltaY) <= STAIR_HEIGHT_THRESHOLD) {
+                            // Adjust position to step up the stair
+                            position = new Point2D(position.getX(), position.getY() + deltaY);
                         } else {
-                            position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                            // Standard side collision response
+                            if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
+                                position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                            } else {
+                                position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                            }
                         }
                     }
                 }
             }
-        } else if (other instanceof Player player) {
-            if (player.hasHammer()){
-                player.addScore(Score.MEDIUM_SCORE);
-                return;
+            case Player player -> {
+                if (player.hasHammer()){
+                    player.addScore(Score.MEDIUM_SCORE);
+                    return;
+                }
+                if (!player.isAlive()){
+                    return;
+                }
+                player.kill();
             }
-            player.kill();
-        } else if (other instanceof Ladder ladder){
-            climbService.setLadder(ladder);
+            case Ladder ladder -> climbService.setLadder(ladder);
+            default -> {}
         }
     }
 

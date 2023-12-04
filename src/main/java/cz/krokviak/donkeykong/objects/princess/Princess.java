@@ -1,4 +1,4 @@
-package cz.krokviak.donkeykong.objects;
+package cz.krokviak.donkeykong.objects.princess;
 
 import cz.krokviak.donkeykong.drawable.AnimatedSprite;
 import cz.krokviak.donkeykong.drawable.Drawable;
