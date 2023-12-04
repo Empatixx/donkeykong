@@ -86,7 +86,7 @@ public class LevelOneGenerator implements LevelGenerator {
         ladders.add(ladder3);
 
         final DefaultLadder ladder4 = new DefaultLadder(120);
-        ladder4.setPosition(500, 425);
+        ladder4.setPosition(500, 415);
         ladders.add(ladder4);
 
         final DefaultLadder ladder5 = new DefaultLadder(90);

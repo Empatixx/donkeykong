@@ -7,7 +7,7 @@ import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ClimbServiceProbability implements ClimbService{
-    private final static float CLIMB_PROBABILITY = 0.25f;
+    private final static float CLIMB_PROBABILITY = 1f;
     private final ClimbService climbServiceImpl;
     public ClimbServiceProbability(final ClimbEntity entity,
                                    final ClimbDirection... directions){

@@ -1,36 +1,56 @@
 package cz.krokviak.donkeykong.objects.climb;
 
+import cz.krokviak.donkeykong.objects.ClimbDirection;
+import cz.krokviak.donkeykong.objects.ClimbEntity;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
 
-public class ClimbServiceCooldown implements ClimbService{
+import java.util.HashMap;
+import java.util.Map;
+
+public class ClimbServiceCooldown implements ClimbService {
+    private final static float CLIMB_COOLDOWN_SECONDS = 10f;
+    private final Map<Ladder, Float> ladderCooldowns;
+    private final ClimbService climbService;
+
+    public ClimbServiceCooldown(final ClimbEntity entity,
+                                final ClimbDirection... directions) {
+        ladderCooldowns = new HashMap<>();
+        this.climbService = new ClimbServiceProbability(entity, directions);
+    }
 
     @Override
     public void climb() {
-
+        climbService.climb();
     }
 
     @Override
     public void stopClimbing() {
-
+        climbService.stopClimbing();
     }
 
     @Override
     public void setLadder(Ladder ladder) {
-
+        if (ladderCooldowns.containsKey(ladder)) {
+            return;
+        }
+        climbService.setLadder(ladder);
+        ladderCooldowns.put(ladder, 0f);
     }
 
     @Override
     public Ladder getLadder() {
-        return null;
+        return climbService.getLadder();
     }
 
     @Override
     public boolean isClimbing() {
-        return false;
+        return climbService.isClimbing();
     }
 
     @Override
     public void update(float dt) {
-
+        climbService.update(dt);
+        ladderCooldowns.replaceAll((ladder, cooldown) -> cooldown + dt);
+        ladderCooldowns.entrySet().removeIf(entry -> entry.getValue() > CLIMB_COOLDOWN_SECONDS);
     }
 }

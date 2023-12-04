@@ -44,21 +44,21 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
     }
 
     @Override
-    public void setPosition(final double x, final double y){
+    public void setPosition(final double x, final double y) {
         position = new Point2D(x, y);
     }
 
-    public void setVelocity(final double x, final double y){
+    public void setVelocity(final double x, final double y) {
         velocity = new Point2D(x, y);
     }
 
     @Override
-    public void update(final float dt){
+    public void update(final float dt) {
         position = position.add(velocity.multiply(dt));
         fixBounds();
-       climbService.update(dt);
+        climbService.update(dt);
         animation.update(dt);
-        if (climbService.isClimbing()){
+        if (climbService.isClimbing()) {
             return;
         }
         velocity = velocity.add(0, GRAVITY * dt);
@@ -90,15 +90,14 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
     @Override
     public void onCollision(AABB other) {
         if (other instanceof Player player) {
-            if (player.hasHammer()){
+            if (player.hasHammer()) {
                 player.addScore(Score.LOW_SCORE);
                 totalBounces = 0;
                 return;
             }
             player.kill();
-        }
-        else if (other instanceof Platform){
-            if (climbService.isClimbing()){
+        } else if (other instanceof Platform) {
+            if (climbService.isClimbing()) {
                 return;
             }
             final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
@@ -112,7 +111,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
                 }
             }
         } else if (other instanceof Ladder ladder) {
-            if (climbService.isClimbing()){
+            if (climbService.isClimbing()) {
                 return;
             }
             climbService.setLadder(ladder);
@@ -124,6 +123,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
         }
 
     }
+
     @Override
     public boolean shouldRemove() {
         return totalBounces <= 0;

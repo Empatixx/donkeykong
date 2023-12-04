@@ -8,6 +8,7 @@ import cz.krokviak.donkeykong.drawable.Updatable;
 import cz.krokviak.donkeykong.hud.Score;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
+import cz.krokviak.donkeykong.objects.climb.ClimbServiceCooldown;
 import cz.krokviak.donkeykong.objects.climb.ClimbServiceProbability;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import cz.krokviak.donkeykong.utils.DelayedTask;
@@ -43,7 +44,7 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
                 .scale(SCALE)
                 .build();
         animation.setCurrentAnimation("idle");
-        climbService = new ClimbServiceProbability(this, ClimbDirection.UP);
+        climbService = new ClimbServiceCooldown(this, ClimbDirection.UP);
     }
 
     @Override
