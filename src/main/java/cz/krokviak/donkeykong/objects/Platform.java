@@ -7,9 +7,9 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
-import java.security.interfaces.DSAPrivateKey;
-
 public class Platform implements Drawable, AABB {
+    private static String DEFAULT_PATH = "platform.png";
+
     public static final int SCALE = 3;
     public static final int WIDTH = 16 * SCALE;
     public static final int HEIGHT = 8 * SCALE;
@@ -19,10 +19,12 @@ public class Platform implements Drawable, AABB {
         this(0, 0);
     }
     public Platform(final float x, final float y) {
-        image = new Image("platform.png");
+        this(x, y, DEFAULT_PATH);
+    }
+    public Platform(final float x, final float y, final String path) {
+        image = new Image(path);
         this.position = new Point2D(x, y);
     }
-
     public void setPosition(final float x, final float y) {
         this.position = new Point2D(x, y);
     }

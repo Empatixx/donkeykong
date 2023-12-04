@@ -20,6 +20,13 @@ public class LevelService {
     public MapGeneration generate(){
         return generators.get(currentLevel).generate();
     }
+
+    public void nextLevel(){
+        switch (currentLevel){
+            case ONE -> currentLevel = Level.TWO;
+            case TWO -> currentLevel = Level.ONE;
+        }
+    }
     public void setLevel(final Level level){
         this.currentLevel = level;
     }

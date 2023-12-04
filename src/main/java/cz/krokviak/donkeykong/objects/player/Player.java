@@ -11,13 +11,11 @@ import cz.krokviak.donkeykong.input.GameAction;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.Hammer;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
-import cz.krokviak.donkeykong.objects.ClimbDirection;
-import cz.krokviak.donkeykong.objects.ClimbEntity;
-import cz.krokviak.donkeykong.objects.HammerItem;
-import cz.krokviak.donkeykong.objects.Platform;
+import cz.krokviak.donkeykong.objects.*;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
 import cz.krokviak.donkeykong.objects.climb.ClimbServiceImpl;
 import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
+import cz.krokviak.donkeykong.objects.princess.NextLevelBox;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
@@ -43,6 +41,7 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
     private boolean rightFacing = true;
     private boolean grounded = true;
     private boolean alive = true;
+    private boolean reachedTop = false;
     private Instant timeOfDeath;
     private HammerItem hammer;
     private ClimbService climbService;
@@ -240,8 +239,19 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
                     }
                 }
             }
+            case Enemy e -> {
+                if (hasHammer()){
+                    addScore(e.deathScore());
+                    return;
+                }
+                if (!isAlive()){
+                    return;
+                }
+                kill();
+            }
             case Hammer hammer -> this.hammer.activate();
             case DefaultLadder ladder -> climbService.setLadder(ladder);
+            case NextLevelBox box -> reachedTop = true;
             default -> {}
         }
     }
@@ -304,16 +314,6 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
 
     public int getTotalScore() {
         return scoreboard.getTotalScore();
-    }
-
-    public void reset(){
-        alive = true;
-        animation.setCurrentAnimation("idle");
-        climbService.stopClimbing();
-        climbService.setLadder(null);
-        position = Point2D.ZERO;
-        velocity = Point2D.ZERO;
-        hammer = new HammerItem();
     }
 
     public void setPreviousPlayer(final Player lastPlayer) {

@@ -18,7 +18,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
+public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy{
     private final static int SCALE = 2;
     private final static int WIDTH = 18;
     private final static int HEIGHT = 18;
@@ -151,16 +151,6 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
                     }
                 }
             }
-            case Player player -> {
-                if (player.hasHammer()){
-                    player.addScore(Score.MEDIUM_SCORE);
-                    return;
-                }
-                if (!player.isAlive()){
-                    return;
-                }
-                player.kill();
-            }
             case Ladder ladder -> climbService.setLadder(ladder);
             default -> {}
         }
@@ -186,5 +176,10 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity{
 
     public Point2D getPosition() {
         return position;
+    }
+
+    @Override
+    public int deathScore() {
+        return Score.MEDIUM_SCORE;
     }
 }

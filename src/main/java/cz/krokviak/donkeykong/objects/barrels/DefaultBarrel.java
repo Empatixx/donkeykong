@@ -8,6 +8,7 @@ import cz.krokviak.donkeykong.hud.Score;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import cz.krokviak.donkeykong.objects.ClimbDirection;
 import cz.krokviak.donkeykong.objects.ClimbEntity;
+import cz.krokviak.donkeykong.objects.Enemy;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
 import cz.krokviak.donkeykong.objects.climb.ClimbServiceProbability;
 import cz.krokviak.donkeykong.objects.Platform;
@@ -17,7 +18,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
+public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity, Enemy {
     public static final int WIDTH = 12;
     public static final int HEIGHT = 10;
     public static final int SCALE = 2;
@@ -90,17 +91,6 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
     @Override
     public void onCollision(AABB other) {
         switch (other){
-            case Player player -> {
-                if (player.hasHammer()) {
-                    player.addScore(Score.MEDIUM_SCORE);
-                    totalBounces = 0;
-                    return;
-                }
-                if (!player.isAlive()){
-                    return;
-                }
-                player.kill();
-            }
             case Platform platform -> {
                 if (climbService.isClimbing()) {
                     return;
@@ -155,5 +145,10 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity {
     @Override
     public int getHeight() {
         return HEIGHT * SCALE;
+    }
+
+    @Override
+    public int deathScore() {
+        return Score.LOW_SCORE;
     }
 }

@@ -40,6 +40,10 @@ public class InGameState extends GameStateSupport implements GameState {
         mapService.update(dt);
         collisionService.update();
         itemService.update(dt);
+        checkPlayerState();
+    }
+
+    private void checkPlayerState() {
         if (!player.isAlive()) {
             if (player.hasExtraLifes() && player.canRespawn()) {
                 reset(player);
@@ -70,6 +74,7 @@ public class InGameState extends GameStateSupport implements GameState {
         collisionService.clear();
         itemService.clear();
 
+        levelService.nextLevel();
         final MapGeneration generation = levelService.generate();
 
         this.mapService = new MapService(generation, collisionService, itemService);
