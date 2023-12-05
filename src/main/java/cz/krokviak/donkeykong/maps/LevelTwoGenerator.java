@@ -14,6 +14,7 @@ import cz.krokviak.donkeykong.objects.Platform;
 import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import cz.krokviak.donkeykong.objects.player.Player;
+import cz.krokviak.donkeykong.objects.princess.NextLevelBox;
 import cz.krokviak.donkeykong.objects.princess.Princess;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class LevelTwoGenerator implements LevelGenerator {
         final Oil oil = createOil();
         final Box box = createBox();
         final Monkey monkey = createMonkey();
+        final NextLevelBox nextLevelBox = new NextLevelBox(0,0, 1000, 250);
 
         final List<Drawable> drawables = new ArrayList<>(100);
         drawables.add(background);
@@ -62,6 +64,7 @@ public class LevelTwoGenerator implements LevelGenerator {
         collisions.addAll(ladders);
         collisions.addAll(hammers);
         collisions.add(box);
+        collisions.add(nextLevelBox);
         collisions.addAll(ladders.stream().map(DefaultLadder::getSubAABB).toList());
 
         final List<Item> items = new ArrayList<>(10);
