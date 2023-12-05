@@ -239,8 +239,28 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
                     }
                 }
             }
+            case Box box -> {
+                if (intersection.getWidth() > intersection.getHeight()) {
+                    if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
+                        position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
+                        velocity = new Point2D(velocity.getX(), 0);
+                    } else {
+                        position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
+                        velocity = new Point2D(velocity.getX(), 0);
+                    }
+                } else {
+                    if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
+                        position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                        velocity = new Point2D(0, velocity.getY());
+                    } else {
+                        position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                        velocity = new Point2D(0, velocity.getY());
+                    }
+                }
+            }
             case Enemy e -> {
                 if (hasHammer()){
+                    e.kill();
                     addScore(e.deathScore());
                     return;
                 }
@@ -316,10 +336,17 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
         return scoreboard.getTotalScore();
     }
 
-    public void setPreviousPlayer(final Player lastPlayer) {
+    public void setPreviousDeadPlayer(final Player lastPlayer) {
         if (lastPlayer == null){
             return;
         }
         setLives(lastPlayer.getLifes() - 1);
+    }
+    public void setPreviousAlivePlayer(final Player player){
+        setLives(player.getLifes());
+    }
+
+    public boolean isAtTop() {
+        return reachedTop;
     }
 }

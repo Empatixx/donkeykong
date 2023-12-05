@@ -46,7 +46,7 @@ public class ClimbServiceImpl implements ClimbService {
                 }
                 transformation = new InterpolatedPoint2D(
                         entity.getPosition(),
-                        ladder.getUpPosition().subtract(entity.getWidth() / 2f, entity.getHeight() / 2f),
+                        ladder.getDownPosition().subtract(entity.getWidth() / 2f, entity.getHeight() / 2f),
                         CLIMB_TIME);
             }
         }

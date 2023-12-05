@@ -23,6 +23,10 @@ public class Oil implements Drawable, Updatable {
     private final CollisionService collisionService;
     private final AnimatedSprite animation;
     public Oil(final CollisionService collisionService){
+        this(collisionService, false);
+    }
+    public Oil(final CollisionService collisionService,
+               final boolean throwBothDirections){
         this.collisionService = collisionService;
         animation = AnimatedSprite.builder()
                 .setFilePath("oil.png")
@@ -39,7 +43,16 @@ public class Oil implements Drawable, Updatable {
         flames = new ArrayList<>();
         spawnFlameTask = new ScheduledTask(() -> {
             final FlameEnemy enemy = new FlameEnemy(collisionService);
-            enemy.setPosition((float) position.getX(), (float) position.getY()+HEIGHT);
+            enemy.setPosition((float) position.getX(), (float) position.getY());
+            if (throwBothDirections) {
+                if (flames.size() % 2 == 0) {
+                    enemy.throwToLeft();
+                } else {
+                    enemy.throwToRight();
+                }
+            } else {
+                enemy.smallThrowToRight();
+            }
             flames.add(enemy);
             collisionService.addAABB(enemy);
         }, SPAWN_TIME);

@@ -151,4 +151,9 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity, Enemy
     public int deathScore() {
         return Score.LOW_SCORE;
     }
+
+    @Override
+    public void kill() {
+        totalBounces = 0;
+    }
 }

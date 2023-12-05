@@ -18,7 +18,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy{
+public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy {
     private final static int SCALE = 2;
     private final static int WIDTH = 18;
     private final static int HEIGHT = 18;
@@ -32,10 +32,11 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
     private final ClimbService climbService;
     private final AntiFallService antiFallService;
     private boolean dead;
+    private boolean spawnFly; // true so enemy can fly without getting handled by AntiFallService
 
     public FlameEnemy(final CollisionService collisionService) {
-        velocity = new Point2D(MOVE_SPEED, 0);
         deadTask = new DelayedTask(() -> dead = true, LIVENESS);
+        velocity = new Point2D(0, 0);
         animation = AnimatedSprite.builder()
                 .setFilePath("flame.png")
                 .addAnimationSequence("idle", 4)
@@ -51,10 +52,10 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
         antiFallService = new AntiFallService(new AABB() {
             @Override
             public Rectangle2D getBoundingBox() {
-                if (velocity.getX() > 0){
-                    return new Rectangle2D(position.getX() + WIDTH * SCALE, position.getY(), WIDTH * SCALE,HEIGHT * SCALE);
+                if (velocity.getX() > 0) {
+                    return new Rectangle2D(position.getX() + WIDTH * SCALE, position.getY(), WIDTH * SCALE, HEIGHT * SCALE);
                 } else {
-                    return new Rectangle2D(position.getX() - WIDTH * SCALE, position.getY(), WIDTH * SCALE,HEIGHT * SCALE);
+                    return new Rectangle2D(position.getX() - WIDTH * SCALE, position.getY(), WIDTH * SCALE, HEIGHT * SCALE);
                 }
             }
 
@@ -62,9 +63,19 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
             public void onCollision(AABB other) {
 
             }
-        },collisionService);
+        }, collisionService);
+        spawnFly = true;
+    }
+    public void throwToRight(){
+        velocity = new Point2D(MOVE_SPEED, -MOVE_SPEED);
+    }
+    public void throwToLeft(){
+        velocity = new Point2D(-MOVE_SPEED, -MOVE_SPEED);
     }
 
+    public void smallThrowToRight() {
+        velocity = new Point2D(MOVE_SPEED, -MOVE_SPEED/2f);
+    }
     @Override
     public void update(float dt) {
         climbService.update(dt);
@@ -76,11 +87,14 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
     }
 
     private void antiFall() {
-        if (climbService.isClimbing()){
+        if (spawnFly){
+            return;
+        }
+        if (climbService.isClimbing()) {
             return;
         }
         final boolean nextStepWillFall = antiFallService.nextStepWillFall();
-        if (nextStepWillFall){
+        if (nextStepWillFall) {
             velocity = new Point2D(-velocity.getX(), velocity.getY());
         }
     }
@@ -116,7 +130,8 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
     @Override
     public void onCollision(AABB other) {
         final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
-        switch (other){
+        switch (other) {
+
             case Platform platform -> {
                 if (climbService.isClimbing()) {
                     return;
@@ -128,6 +143,7 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
                         position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
                         if (velocity.getY() > 0) {
                             velocity = new Point2D(velocity.getX(), 0);
+                            spawnFly = false;
                         }
                     } else if (intersection.getMinY() == getBoundingBox().getMinY()) {
                         // Player hits the ceiling
@@ -151,8 +167,28 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
                     }
                 }
             }
+            case Box box -> {
+                if (intersection.getWidth() > intersection.getHeight()) {
+                    if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
+                        position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
+                        velocity = new Point2D(velocity.getX(), 0);
+                    } else {
+                        position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
+                        velocity = new Point2D(velocity.getX(), 0);
+                    }
+                } else {
+                    if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
+                        position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                        velocity = new Point2D(-velocity.getX(), velocity.getY());
+                    } else {
+                        position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                        velocity = new Point2D(-velocity.getX(), velocity.getY());
+                    }
+                }
+            }
             case Ladder ladder -> climbService.setLadder(ladder);
-            default -> {}
+            default -> {
+            }
         }
     }
 
@@ -182,4 +218,10 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
     public int deathScore() {
         return Score.MEDIUM_SCORE;
     }
+
+    @Override
+    public void kill() {
+        dead = true;
+    }
+
 }

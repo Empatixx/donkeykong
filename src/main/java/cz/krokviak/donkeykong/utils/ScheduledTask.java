@@ -1,7 +1,7 @@
 package cz.krokviak.donkeykong.utils;
 
 public class ScheduledTask {
-
+    public static final ScheduledTask EMPTY = new ScheduledTask(() -> {}, Float.MAX_VALUE);
     private final Runnable task;
     private final float interval;
     private float elapsedTime;

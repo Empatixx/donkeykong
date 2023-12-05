@@ -27,7 +27,6 @@ public class Monkey implements Drawable, Updatable {
     private CollisionService collisionService;
     private ScheduledTask takeBarrelTask;
     private ScheduledTask spawnBarrelTask;
-    private final DelayedTask spawnFlameBarrelTask;
     private List<Barrel> barrels;
 
     public Monkey(final CollisionService collisionService) {
@@ -60,14 +59,13 @@ public class Monkey implements Drawable, Updatable {
             collisionService.addAABB(barrel);
             takeBarrelTask.reset();
         }, BARREL_SPAWN_TIME);
-        spawnFlameBarrelTask = new DelayedTask(() -> {
-            final FlameBarrel barrel = new FlameBarrel();
-            barrel.setPosition(position.getX() + WIDTH * SCALE - 30, position.getY() + HEIGHT * SCALE - 50);
-            barrel.setVelocity(100, 0);
-            barrels.add(barrel);
-            collisionService.addAABB(barrel);
-        }, FLAME_BARREL_SPAWN_TIME);
         this.collisionService = collisionService;
+    }
+    public void disableBarrels(){
+        barrels.forEach(barrel -> collisionService.removeAABB(barrel));
+        barrels.clear();
+        spawnBarrelTask = ScheduledTask.EMPTY;
+        takeBarrelTask = ScheduledTask.EMPTY;
     }
 
     public void setPosition(final float x, final float y) {
@@ -83,7 +81,6 @@ public class Monkey implements Drawable, Updatable {
         animatedSprite.update(dt);
         takeBarrelTask.update(dt);
         spawnBarrelTask.update(dt);
-        spawnFlameBarrelTask.update(dt);
         barrels.forEach(barrel -> barrel.update(dt));
         for (final Barrel barrel : barrels) {
             if (barrel.shouldRemove()) {

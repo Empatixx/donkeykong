@@ -14,7 +14,6 @@ import javafx.scene.layout.Pane;
 
 public class InGameState extends GameStateSupport implements GameState {
     private final GamestateShareService gamestateShareService;
-    private final InputHandler inputHandler;
     private Player player;
     private final Canvas canvas = new Canvas(DonkeyKongApplication.WIDTH, DonkeyKongApplication.HEIGHT);
     private final GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -28,7 +27,6 @@ public class InGameState extends GameStateSupport implements GameState {
                        final InputHandler inputHandler,
                        final Pane pane) {
         super(gsm, pane);
-        this.inputHandler = inputHandler;
         this.gamestateShareService = gamestateShareService;
         collisionService = new CollisionService();
         itemService = new ItemService(collisionService);
@@ -46,11 +44,15 @@ public class InGameState extends GameStateSupport implements GameState {
     private void checkPlayerState() {
         if (!player.isAlive()) {
             if (player.hasExtraLifes() && player.canRespawn()) {
-                reset(player);
+                resetLevel(player);
             } else if (!player.hasExtraLifes() && player.canRespawn()){
                 gamestateShareService.addScore(player.getTotalScore());
                 gsm.setState(GameStateType.MENU);
             }
+            return;
+        }
+        if (player.isAtTop()) {
+            nextLevel();
         }
     }
 
@@ -64,22 +66,27 @@ public class InGameState extends GameStateSupport implements GameState {
 
     @Override
     public void init() {
-        reset(null);
+        resetLevel(null);
 
         root.getChildren().clear();
         root.getChildren().add(canvas);
         canvas.setFocusTraversable(true);
     }
-    private void reset(final Player lastPlayer){
+    private void resetLevel(final Player lastPlayer){
+        setupMap();
+        player.setPreviousDeadPlayer(lastPlayer);
+    }
+    public void nextLevel(){
+        levelService.nextLevel();
+        setupMap();
+        player.setPreviousAlivePlayer(player);
+    }
+    public void setupMap(){
         collisionService.clear();
         itemService.clear();
-
-        levelService.nextLevel();
         final MapGeneration generation = levelService.generate();
-
         this.mapService = new MapService(generation, collisionService, itemService);
         player = generation.player();
-        player.setPreviousPlayer(lastPlayer);
     }
 
 }

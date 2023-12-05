@@ -11,6 +11,7 @@ import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import cz.krokviak.donkeykong.objects.*;
 import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
 import cz.krokviak.donkeykong.objects.player.Player;
+import cz.krokviak.donkeykong.objects.princess.NextLevelBox;
 import cz.krokviak.donkeykong.objects.princess.Princess;
 
 import java.util.ArrayList;
@@ -48,6 +49,8 @@ public class LevelOneGenerator implements LevelGenerator {
         final Oil oil = new Oil(collisionService);
         oil.setPosition(32, 712);
 
+        final NextLevelBox nextLevelBox = new NextLevelBox(300,0, 100, 150);
+
         final List<Drawable> drawables = new ArrayList<>(100);
         drawables.add(background);
         drawables.add(player);
@@ -67,6 +70,7 @@ public class LevelOneGenerator implements LevelGenerator {
         aabbs.addAll(platforms);
         aabbs.addAll(hammers);
         aabbs.addAll(ladders);
+        aabbs.add(nextLevelBox);
         aabbs.addAll(ladders.stream().map(DefaultLadder::getSubAABB).toList());
 
 
