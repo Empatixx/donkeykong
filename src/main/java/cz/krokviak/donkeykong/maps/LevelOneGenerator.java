@@ -49,7 +49,7 @@ public class LevelOneGenerator implements LevelGenerator {
         final Oil oil = new Oil(collisionService);
         oil.setPosition(32, 712);
 
-        final NextLevelBox nextLevelBox = new NextLevelBox(300,0, 100, 150);
+        final NextLevelBox nextLevelBox = new NextLevelBox(200,0, 100, 100);
 
         final List<Drawable> drawables = new ArrayList<>(100);
         drawables.add(background);

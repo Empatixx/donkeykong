@@ -48,7 +48,7 @@ public class LevelTwoGenerator implements LevelGenerator {
         final Oil oil = createOil();
         final Box box = createBox();
         final Monkey monkey = createMonkey();
-        final NextLevelBox nextLevelBox = new NextLevelBox(0,0, 1000, 250);
+        final NextLevelBox nextLevelBox = new NextLevelBox(300,0, 200, 150);
 
         final List<Drawable> drawables = new ArrayList<>(100);
         drawables.add(background);
