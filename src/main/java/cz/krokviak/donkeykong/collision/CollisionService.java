@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollisionService {
-    private final static boolean DEBUG = true;
+    private final static boolean DEBUG = false;
     private final List<AABB> aabbs;
     public CollisionService(){
         this.aabbs = new ArrayList<>();

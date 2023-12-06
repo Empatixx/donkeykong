@@ -18,6 +18,7 @@ import cz.krokviak.donkeykong.objects.*;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
 import cz.krokviak.donkeykong.objects.climb.ClimbServiceImpl;
 import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
+import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import cz.krokviak.donkeykong.objects.princess.NextLevelBox;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -71,7 +72,7 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
         animation.setCurrentAnimation("idle");
         hammer = new HammerItem();
         playerLifes = new PlayerLifes();
-        climbService = new ClimbServiceImpl(this, ClimbDirection.UP);
+        climbService = new ClimbServiceImpl(this, ClimbDirection.UP, ClimbDirection.DOWN);
         this.scoreboard = new Scoreboard();
     }
 
@@ -210,7 +211,7 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
             case Box box -> handleBox(intersection);
             case Enemy e -> handleEnemy(e);
             case Hammer hammer -> handleHammer();
-            case DefaultLadder ladder -> handleLadder(ladder);
+            case Ladder ladder -> handleLadder(ladder);
             case NextLevelBox box -> handleNextLevelBox();
             case Umbrella umbrella -> addScore(Score.HIGH_SCORE);
             case PrincessBag princessBag -> addScore(Score.HIGH_SCORE);
@@ -292,7 +293,7 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
         this.hammer.activate();
     }
 
-    private void handleLadder(DefaultLadder ladder) {
+    private void handleLadder(Ladder ladder) {
         climbService.setLadder(ladder);
     }
 
@@ -313,9 +314,10 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
         return WIDTH * SCALE;
     }
 
-    @Override
+    private final static int CLIMB_OFFSET = 32;
+    ;@Override
     public int getHeight() {
-        return HEIGHT * SCALE;
+        return HEIGHT * SCALE + CLIMB_OFFSET;
     }
 
     public void kill() {

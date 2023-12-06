@@ -6,10 +6,7 @@ import cz.krokviak.donkeykong.drawable.Background;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.*;
-import cz.krokviak.donkeykong.objects.Box;
-import cz.krokviak.donkeykong.objects.Monkey;
-import cz.krokviak.donkeykong.objects.Oil;
-import cz.krokviak.donkeykong.objects.Platform;
+import cz.krokviak.donkeykong.objects.*;
 import cz.krokviak.donkeykong.objects.ladder.DefaultLadder;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import cz.krokviak.donkeykong.objects.player.Player;
@@ -43,6 +40,7 @@ public class LevelTwoGenerator implements LevelGenerator {
         final PrincessBag princessBag = createPrincessBag();
         final PrincessHat princessHat = createPrincessHat();
         final Umbrella umbrella = createUmbrella();
+        final CakeParent cakeParent = createCakeParent();
 
         final Princess princess = createPrincess();
         final Oil oil = createOil();
@@ -63,6 +61,7 @@ public class LevelTwoGenerator implements LevelGenerator {
         drawables.add(princessBag);
         drawables.add(princessHat);
         drawables.add(umbrella);
+        drawables.add(cakeParent);
 
         final List<AABB> collisions = new ArrayList<>(100);
         collisions.addAll(platforms);
@@ -83,6 +82,24 @@ public class LevelTwoGenerator implements LevelGenerator {
         items.add(umbrella);
 
         return new MapGeneration(player, drawables, collisions, items);
+    }
+
+    private CakeParent createCakeParent() {
+        final CakeParent cakeParent = new CakeParent(collisionService);
+
+        final CakeEnemy cakeEnemy = new CakeEnemy();
+        cakeEnemy.setPosition(175, 620);
+        cakeParent.addCake(cakeEnemy);
+
+        final CakeEnemy cakeEnemy2 = new CakeEnemy();
+        cakeEnemy2.setPosition(385, 620);
+        cakeParent.addCake(cakeEnemy2);
+
+        final CakeEnemy cakeEnemy3 = new CakeEnemy();
+        cakeEnemy3.setPosition(600, 620);
+        cakeParent.addCake(cakeEnemy3);
+
+        return cakeParent;
     }
 
     private PrincessBag createPrincessBag() {
