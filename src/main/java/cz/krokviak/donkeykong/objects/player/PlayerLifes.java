@@ -2,14 +2,17 @@ package cz.krokviak.donkeykong.objects.player;
 
 import cz.krokviak.donkeykong.drawable.Drawable;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class PlayerLifes implements Drawable {
     public static final int TOTAL_LIFES = 3;
+    public final Image image;
     private int lifes;
 
     public PlayerLifes() {
         this.lifes =TOTAL_LIFES;
+        image = new Image("lifeicon.png");
     }
 
     public void addLife() {
@@ -28,7 +31,7 @@ public class PlayerLifes implements Drawable {
     public void drawInternal(GraphicsContext gc) {
         for (int i = 0; i < lifes; i++) {
             gc.setFill(Color.WHITE);
-            gc.fillRect(700 + i * 20, 50, 10, 10);
+            gc.drawImage(image, 700 + i * 20, 50, 14, 16);
         }
 
     }

@@ -12,14 +12,13 @@ import cz.krokviak.donkeykong.objects.Enemy;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
 import cz.krokviak.donkeykong.objects.climb.ClimbServiceProbability;
 import cz.krokviak.donkeykong.objects.Platform;
-import cz.krokviak.donkeykong.objects.player.Player;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
 public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity, Enemy {
-    public static final int WIDTH = 12;
+    public static final int WIDTH = 16;
     public static final int HEIGHT = 10;
     public static final int SCALE = 2;
     private final static int GRAVITY = 150;
@@ -33,6 +32,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity, Enemy
         this.animation = AnimatedSprite.builder()
                 .setFilePath("barrel.png")
                 .addAnimationSequence("roll", 4)
+                .addAnimationSequence("ladder", 2)
                 .setFrameHeight(HEIGHT)
                 .setFrameWidth(WIDTH)
                 .setFrameTime(0.1f)
@@ -61,6 +61,9 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity, Enemy
         animation.update(dt);
         if (climbService.isClimbing()) {
             return;
+        }
+        if (animation.getCurrentAnimation().equals("ladder")) {
+            animation.setCurrentAnimation("roll");
         }
         velocity = velocity.add(0, GRAVITY * dt);
     }
@@ -115,6 +118,7 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity, Enemy
                 if (climbing) {
                     totalBounces--;
                     velocity = new Point2D(-velocity.getX(), velocity.getY());
+                    animation.setCurrentAnimation("ladder");
                 }
             }
             default -> {}
@@ -156,4 +160,5 @@ public class DefaultBarrel implements Drawable, AABB, Barrel, ClimbEntity, Enemy
     public void kill() {
         totalBounces = 0;
     }
+
 }

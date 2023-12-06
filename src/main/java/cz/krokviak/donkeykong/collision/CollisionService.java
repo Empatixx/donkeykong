@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollisionService {
+    private final static boolean DEBUG = true;
     private final List<AABB> aabbs;
     public CollisionService(){
         this.aabbs = new ArrayList<>();
@@ -30,6 +31,9 @@ public class CollisionService {
         }
     }
     public void draw(GraphicsContext c){
+        if (!DEBUG){
+            return;
+        }
         for (AABB aabb : aabbs) {
             c.setStroke(Color.RED);
             c.strokeRect(aabb.getBoundingBox().getMinX(), aabb.getBoundingBox().getMinY(), aabb.getBoundingBox().getWidth(), aabb.getBoundingBox().getHeight());

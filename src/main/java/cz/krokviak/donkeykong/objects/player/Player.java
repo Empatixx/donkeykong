@@ -10,6 +10,9 @@ import cz.krokviak.donkeykong.hud.Scoreboard;
 import cz.krokviak.donkeykong.input.GameAction;
 import cz.krokviak.donkeykong.input.InputHandler;
 import cz.krokviak.donkeykong.items.Hammer;
+import cz.krokviak.donkeykong.items.PrincessBag;
+import cz.krokviak.donkeykong.items.PrincessHat;
+import cz.krokviak.donkeykong.items.Umbrella;
 import cz.krokviak.donkeykong.main.DonkeyKongApplication;
 import cz.krokviak.donkeykong.objects.*;
 import cz.krokviak.donkeykong.objects.climb.ClimbService;
@@ -28,7 +31,6 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
     public final static int HEIGHT = 64;
     public final static int COLLISION_WIDTH = 32;
     public final static int COLLISION_HEIGHT = 64;
-
     private final static int SPEED = 50;
     private final static int JUMP_SPEED = 100;
     private final static int GRAVITY = 90;
@@ -152,7 +154,10 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
         }
         // gravity
         newVelocity = newVelocity.add(0, GRAVITY * dt);
-
+        // player is falling or jumping
+        if (velocity.getY() != 0) {
+            grounded = false;
+        }
         velocity = newVelocity;
     }
 
@@ -185,8 +190,6 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
         animation.draw(gc);
         playerLifes.draw(gc);
         scoreboard.draw(gc);
-        /*gc.setFill(Color.GREEN);
-        gc.fillRect(position.getX(), position.getY(), WIDTH * SCALE, HEIGHT * SCALE);*/
 
     }
 
@@ -203,77 +206,101 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
     public void onCollision(AABB other) {
         final Rectangle2D intersection = RectangleUtils.intersection(getBoundingBox(), other.getBoundingBox());
         switch (other){
-            case Platform platform -> {
-                if (climbService.isClimbing()) {
-                    return;
-                }
-                if (intersection.getWidth() > intersection.getHeight()) {
-                    // Collision from top or bottom of the player
-                    if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
-                        // Player lands on the platform
-                        position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
-                        grounded = true; // Player is on the ground
-                        if (velocity.getY() > 0) {
-                            velocity = new Point2D(velocity.getX(), 0);
-                        }
-                    } else if (intersection.getMinY() == getBoundingBox().getMinY()) {
-                        // Player hits the ceiling
-                        position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
-                        velocity = new Point2D(velocity.getX(), 0);
-                    }
-                } else {
-                    if (intersection.getMaxX() == getBoundingBox().getMaxX() || intersection.getMinX() == getBoundingBox().getMinX()) {
-                        // Check if the player can step up a stair
-                        double deltaY = other.getBoundingBox().getMinY() - getBoundingBox().getMaxY();
-                        if (Math.abs(deltaY) <= STAIR_HEIGHT_THRESHOLD && grounded) {
-                            // Adjust position to step up the stair
-                            position = new Point2D(position.getX(), position.getY() + deltaY);
-                        } else {
-                            // Standard side collision response
-                            if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
-                                position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
-                            } else {
-                                position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
-                            }
-                        }
-                    }
-                }
-            }
-            case Box box -> {
-                if (intersection.getWidth() > intersection.getHeight()) {
-                    if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
-                        position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
-                        velocity = new Point2D(velocity.getX(), 0);
-                    } else {
-                        position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
-                        velocity = new Point2D(velocity.getX(), 0);
-                    }
-                } else {
-                    if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
-                        position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
-                        velocity = new Point2D(0, velocity.getY());
-                    } else {
-                        position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
-                        velocity = new Point2D(0, velocity.getY());
-                    }
-                }
-            }
-            case Enemy e -> {
-                if (hasHammer()){
-                    e.kill();
-                    addScore(e.deathScore());
-                    return;
-                }
-                if (!isAlive()){
-                    return;
-                }
-                kill();
-            }
-            case Hammer hammer -> this.hammer.activate();
-            case DefaultLadder ladder -> climbService.setLadder(ladder);
-            case NextLevelBox box -> reachedTop = true;
+            case Platform platform -> handlePlatform(other, intersection);
+            case Box box -> handleBox(intersection);
+            case Enemy e -> handleEnemy(e);
+            case Hammer hammer -> handleHammer();
+            case DefaultLadder ladder -> handleLadder(ladder);
+            case NextLevelBox box -> handleNextLevelBox();
+            case Umbrella umbrella -> addScore(Score.HIGH_SCORE);
+            case PrincessBag princessBag -> addScore(Score.HIGH_SCORE);
+            case PrincessHat princessHat -> addScore(Score.HIGH_SCORE);
             default -> {}
         }
+    }
+
+    private void handlePlatform(AABB other, Rectangle2D intersection) {
+        if (climbService.isClimbing()) {
+            return;
+        }
+        if (intersection.getWidth() > intersection.getHeight()) {
+            // Collision from top or bottom of the player
+            if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
+                // Player lands on the platform
+                position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
+                grounded = true; // Player is on the ground
+                if (velocity.getY() > 0) {
+                    velocity = new Point2D(velocity.getX(), 0);
+                }
+            } else if (intersection.getMinY() == getBoundingBox().getMinY()) {
+                // Player hits the ceiling
+                position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
+                velocity = new Point2D(velocity.getX(), 0);
+            }
+        } else {
+            if (intersection.getMaxX() == getBoundingBox().getMaxX() || intersection.getMinX() == getBoundingBox().getMinX()) {
+                // Check if the player can step up a stair
+                double deltaY = other.getBoundingBox().getMinY() - getBoundingBox().getMaxY();
+                if (Math.abs(deltaY) <= STAIR_HEIGHT_THRESHOLD && grounded) {
+                    // Adjust position to step up the stair
+                    position = new Point2D(position.getX(), position.getY() + deltaY);
+                } else {
+                    // Standard side collision response
+                    if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
+                        position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                    } else {
+                        position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                    }
+                }
+            }
+        }
+    }
+
+    private void handleBox(Rectangle2D intersection) {
+        if (intersection.getWidth() > intersection.getHeight()) {
+            if (intersection.getMaxY() == getBoundingBox().getMaxY()) {
+                position = new Point2D(position.getX(), position.getY() - intersection.getHeight());
+                velocity = new Point2D(velocity.getX(), 0);
+            } else {
+                position = new Point2D(position.getX(), position.getY() + intersection.getHeight());
+                velocity = new Point2D(velocity.getX(), 0);
+            }
+        } else {
+            if (intersection.getMaxX() == getBoundingBox().getMaxX()) {
+                position = new Point2D(position.getX() - intersection.getWidth(), position.getY());
+                velocity = new Point2D(0, velocity.getY());
+            } else {
+                position = new Point2D(position.getX() + intersection.getWidth(), position.getY());
+                velocity = new Point2D(0, velocity.getY());
+            }
+        }
+    }
+
+    private void handleEnemy(Enemy e) {
+        if (hasHammer()){
+            e.kill();
+            addScore(e.deathScore());
+            return;
+        }
+        if (!isAlive()){
+            return;
+        }
+        kill();
+    }
+
+    private void handleHammer() {
+        this.hammer.activate();
+    }
+
+    private void handleLadder(DefaultLadder ladder) {
+        climbService.setLadder(ladder);
+    }
+
+    private void handleNextLevelBox() {
+        if (!reachedTop){
+            addScore(Score.HIGH_SCORE);
+        }
+        reachedTop = true;
     }
 
     @Override
@@ -341,9 +368,16 @@ public class Player implements Drawable, AABB, Updatable, ClimbEntity {
             return;
         }
         setLives(lastPlayer.getLifes() - 1);
+        scoreboard.setLastLevelScore(lastPlayer.getLastLevelScore());
     }
+
+    private int getLastLevelScore() {
+        return scoreboard.getLastLevelScore();
+    }
+
     public void setPreviousAlivePlayer(final Player player){
         setLives(player.getLifes());
+        scoreboard.setLastLevelScore(player.getTotalScore());
     }
 
     public boolean isAtTop() {

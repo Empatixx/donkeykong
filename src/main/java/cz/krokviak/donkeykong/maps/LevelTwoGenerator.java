@@ -5,8 +5,7 @@ import cz.krokviak.donkeykong.collision.CollisionService;
 import cz.krokviak.donkeykong.drawable.Background;
 import cz.krokviak.donkeykong.drawable.Drawable;
 import cz.krokviak.donkeykong.input.InputHandler;
-import cz.krokviak.donkeykong.items.Hammer;
-import cz.krokviak.donkeykong.items.Item;
+import cz.krokviak.donkeykong.items.*;
 import cz.krokviak.donkeykong.objects.Box;
 import cz.krokviak.donkeykong.objects.Monkey;
 import cz.krokviak.donkeykong.objects.Oil;
@@ -39,7 +38,12 @@ public class LevelTwoGenerator implements LevelGenerator {
         final Player player = generatePlayer();
         final Background background = new Background();
         final List<DefaultLadder> ladders = createLadders();
+
         final List<Hammer> hammers = createHammers();
+        final PrincessBag princessBag = createPrincessBag();
+        final PrincessHat princessHat = createPrincessHat();
+        final Umbrella umbrella = createUmbrella();
+
         final Princess princess = createPrincess();
         final Oil oil = createOil();
         final Box box = createBox();
@@ -56,7 +60,9 @@ public class LevelTwoGenerator implements LevelGenerator {
         drawables.add(oil);
         drawables.add(box);
         drawables.add(monkey);
-
+        drawables.add(princessBag);
+        drawables.add(princessHat);
+        drawables.add(umbrella);
 
         final List<AABB> collisions = new ArrayList<>(100);
         collisions.addAll(platforms);
@@ -66,11 +72,33 @@ public class LevelTwoGenerator implements LevelGenerator {
         collisions.add(box);
         collisions.add(nextLevelBox);
         collisions.addAll(ladders.stream().map(DefaultLadder::getSubAABB).toList());
+        collisions.add(princessBag);
+        collisions.add(princessHat);
+        collisions.add(umbrella);
 
         final List<Item> items = new ArrayList<>(10);
         items.addAll(hammers);
+        items.add(princessBag);
+        items.add(princessHat);
+        items.add(umbrella);
 
         return new MapGeneration(player, drawables, collisions, items);
+    }
+
+    private PrincessBag createPrincessBag() {
+        final PrincessBag princessBag = new PrincessBag();
+        princessBag.setPosition(400, 755);
+        return princessBag;
+    }
+    private PrincessHat createPrincessHat() {
+        final PrincessHat princessHat = new PrincessHat();
+        princessHat.setPosition(250, 490);
+        return princessHat;
+    }
+    private Umbrella createUmbrella() {
+        final Umbrella umbrella = new Umbrella();
+        umbrella.setPosition(730, 490);
+        return umbrella;
     }
 
     private Box createBox() {

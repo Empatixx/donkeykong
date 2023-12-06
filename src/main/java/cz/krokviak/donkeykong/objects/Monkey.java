@@ -25,7 +25,6 @@ public class Monkey implements Drawable, Updatable {
     private Point2D position;
     private boolean rightFacing = false;
     private CollisionService collisionService;
-    private ScheduledTask takeBarrelTask;
     private ScheduledTask spawnBarrelTask;
     private List<Barrel> barrels;
 
@@ -35,29 +34,18 @@ public class Monkey implements Drawable, Updatable {
                 .positionSupplier(() -> position)
                 .isFlippedSupplier(() -> rightFacing)
                 .addAnimationSequence("idle", 1)
-                .addAnimationSequence("side", 1)
+                .addAnimationSequence("side", 3)
                 .setFrameHeight(HEIGHT)
                 .setFrameWidth(WIDTH)
-                .setFrameTime(0.1f)
+                .setFrameTime(0.35f)
                 .scale(3)
                 .build();
         animatedSprite.setCurrentAnimation("idle");
         barrels = new ArrayList<>();
-        takeBarrelTask = new ScheduledTask(() -> {
+        spawnBarrelTask = new ScheduledTask(() -> {
             rightFacing = false;
             animatedSprite.setCurrentAnimation("side");
-            animatedSprite.setFrameTimeCurrentAnimation(0.25f);
-        }, BARREL_SPAWN_TIME - 0.5f);
-        spawnBarrelTask = new ScheduledTask(() -> {
-            rightFacing = true;
-            animatedSprite.setCurrentAnimation("side");
-            animatedSprite.setFrameTimeCurrentAnimation(0.25f);
-            final DefaultBarrel barrel = new DefaultBarrel(6);
-            barrel.setPosition(position.getX() + WIDTH * SCALE - 30, position.getY() + HEIGHT * SCALE - 50);
-            barrel.setVelocity(100, 0);
-            barrels.add(barrel);
-            collisionService.addAABB(barrel);
-            takeBarrelTask.reset();
+            animatedSprite.setFrameTimeCurrentAnimation(0.35f);
         }, BARREL_SPAWN_TIME);
         this.collisionService = collisionService;
     }
@@ -65,7 +53,6 @@ public class Monkey implements Drawable, Updatable {
         barrels.forEach(barrel -> collisionService.removeAABB(barrel));
         barrels.clear();
         spawnBarrelTask = ScheduledTask.EMPTY;
-        takeBarrelTask = ScheduledTask.EMPTY;
     }
 
     public void setPosition(final float x, final float y) {
@@ -75,11 +62,16 @@ public class Monkey implements Drawable, Updatable {
     @Override
     public void update(float dt) {
         if (animatedSprite.getCurrentAnimation().equals("side") && animatedSprite.hasFinishedAnimation()) {
+            final DefaultBarrel barrel = new DefaultBarrel(6);
+            barrel.setPosition(position.getX() + WIDTH * SCALE - 30, position.getY() + HEIGHT * SCALE - 50);
+            barrel.setVelocity(100, 0);
+            barrels.add(barrel);
+            collisionService.addAABB(barrel);
+
             animatedSprite.setCurrentAnimation("idle");
-            animatedSprite.setFrameTimeCurrentAnimation(0.1f);
+            animatedSprite.setFrameTimeCurrentAnimation(0.35f);
         }
         animatedSprite.update(dt);
-        takeBarrelTask.update(dt);
         spawnBarrelTask.update(dt);
         barrels.forEach(barrel -> barrel.update(dt));
         for (final Barrel barrel : barrels) {

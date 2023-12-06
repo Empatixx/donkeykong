@@ -52,7 +52,7 @@ public class InGameState extends GameStateSupport implements GameState {
             return;
         }
         if (player.isAtTop()) {
-            nextLevel();
+            nextLevel(player);
         }
     }
 
@@ -73,15 +73,13 @@ public class InGameState extends GameStateSupport implements GameState {
         canvas.setFocusTraversable(true);
     }
     private void resetLevel(final Player lastPlayer){
-        levelService.nextLevel();
-
         setupMap();
         player.setPreviousDeadPlayer(lastPlayer);
     }
-    public void nextLevel(){
+    public void nextLevel(final Player lastPlayer){
         levelService.nextLevel();
         setupMap();
-        player.setPreviousAlivePlayer(player);
+        player.setPreviousAlivePlayer(lastPlayer);
     }
     public void setupMap(){
         collisionService.clear();

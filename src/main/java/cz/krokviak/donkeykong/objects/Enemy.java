@@ -6,4 +6,5 @@ public interface Enemy extends AABB {
     int deathScore();
 
     void kill();
+
 }

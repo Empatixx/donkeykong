@@ -9,6 +9,7 @@ import java.util.List;
 public class Scoreboard {
     private final List<Score> scores = new ArrayList<>();
     private int totalScore;
+    private int lastLevelScore;
     public Score addScore(final Score score){
         scores.add(score);
         totalScore += score.getScore();
@@ -25,8 +26,17 @@ public class Scoreboard {
         scores.forEach(score -> score.draw(gc));
     }
 
+    public void setLastLevelScore(int lastLevelScore) {
+        this.lastLevelScore = lastLevelScore;
+        this.totalScore = lastLevelScore;
+    }
+
     public int getTotalScore() {
         return totalScore;
+    }
+
+    public int getLastLevelScore() {
+        return lastLevelScore;
     }
 }
 

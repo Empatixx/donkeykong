@@ -14,6 +14,7 @@ import cz.krokviak.donkeykong.objects.climb.ClimbServiceCooldown;
 import cz.krokviak.donkeykong.objects.ladder.Ladder;
 import cz.krokviak.donkeykong.objects.player.Player;
 import cz.krokviak.donkeykong.utils.DelayedTask;
+import cz.krokviak.donkeykong.utils.ScheduledTask;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
@@ -28,6 +29,7 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
     private Point2D position;
     private Point2D velocity;
     private final DelayedTask deadTask;
+    private final ScheduledTask changeColorTask;
     private final AnimatedSprite animation;
     private final ClimbService climbService;
     private final AntiFallService antiFallService;
@@ -40,6 +42,7 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
         animation = AnimatedSprite.builder()
                 .setFilePath("flame.png")
                 .addAnimationSequence("idle", 4)
+                .addAnimationSequence("idle2", 4)
                 .setFrameHeight(HEIGHT)
                 .setFrameWidth(WIDTH)
                 .setFrameTime(0.1f)
@@ -48,6 +51,13 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
                 .scale(SCALE)
                 .build();
         animation.setCurrentAnimation("idle");
+        changeColorTask = new ScheduledTask(() -> {
+            if (animation.getCurrentAnimation().equals("idle")) {
+                animation.setCurrentAnimation("idle2");
+            } else {
+                animation.setCurrentAnimation("idle");
+            }
+        }, 5f);
         climbService = new ClimbServiceCooldown(this, ClimbDirection.UP, ClimbDirection.DOWN);
         antiFallService = new AntiFallService(new AABB() {
             @Override
@@ -81,10 +91,12 @@ public class FlameEnemy implements Drawable, Updatable, AABB, ClimbEntity, Enemy
         climbService.update(dt);
         animation.update(dt);
         deadTask.update(dt);
+        changeColorTask.update(dt);
         antiFall();
         nextPosition(dt);
         fixBounds();
     }
+
 
     private void antiFall() {
         if (spawnFly){
