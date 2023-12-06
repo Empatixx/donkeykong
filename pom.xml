@@ -5,9 +5,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>cz.krokviak</groupId>
-  <artifactId>donkeykong</artifactId>
+  <artifactId>java1_2023_KRO0163</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>donkeykong</name>
+  <name> java1_2023_KRO0163</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
