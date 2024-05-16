@@ -73,8 +73,6 @@ public class InGameState extends GameStateSupport implements GameState {
         canvas.setFocusTraversable(true);
     }
     private void resetLevel(final Player lastPlayer){
-        levelService.nextLevel();
-
         setupMap();
         player.setPreviousDeadPlayer(lastPlayer);
     }
